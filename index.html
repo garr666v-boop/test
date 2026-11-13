@@ -1075,6 +1075,7 @@ function platUnder(x) {
 }
 function loadLevel(ix) {
   const L = LEVELS[ix];
+  G.mode = "play";
   G.campaign = true; G.levelIx = ix; G.levelBiome = L.biome; G.levelSpeed = L.speed;
   G.plats = []; G.shards = []; G.haz = []; G.powers = []; G.parts = []; G.floats = []; G.events = [];
   G.startX = 0; G.t = 0; G.ts = 1; G.slowT = 0; G.overT = 0; G.dist = 0;
@@ -2099,6 +2100,7 @@ const R = (() => {
     show("win");
   }
   function retryLevel() {
+    paused = false; AE.setPaused(false);
     if (G.campaign) {
       G.score = G.levelScore0; G.shardsN = G.levelShards0; G.maxCombo = 0;
       loadLevel(G.levelIx);
@@ -2208,7 +2210,7 @@ const R = (() => {
 
   /* ---------- input ---------- */
   document.addEventListener("click", e => {
-    const el = e.target.closest ? e.target.closest("[data-act],[data-lang]") : null;
+    const el = e.target.closest ? e.target.closest("[data-act],[data-lang],[data-diff]") : null;
     if (screen === "splash" && !el) { enter(); return; }
     if (!el) return;
     AE.sfx.click();
