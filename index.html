@@ -14,13 +14,15 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 .screen{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;overflow-y:auto;opacity:0;visibility:hidden;transform:scale(1.035);transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s;pointer-events:none}
 .screen.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .45s ease;pointer-events:auto}
 #splash{cursor:pointer}
-#langBtn{position:absolute;top:calc(16px + env(safe-area-inset-top));right:calc(20px + env(safe-area-inset-right));z-index:6;display:flex;align-items:center;gap:8px;height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:inherit;font-size:15px;font-weight:750;letter-spacing:.14em;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s,transform .18s ease,border-color .18s,box-shadow .18s}
-#langBtn.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .45s ease,transform .18s ease,border-color .18s,box-shadow .18s}
-#langBtn:hover,#langBtn:focus-visible{transform:translateY(-2px);border-color:var(--acc2);box-shadow:0 0 0 1px var(--acc2),0 0 22px var(--glow2);outline:none}
-#langBtn:active{transform:scale(.97)}
-#langBtn svg{display:block;flex:0 0 auto;filter:drop-shadow(0 0 6px var(--glow2))}
-#langBtn b{font-weight:800}
-html[dir=rtl] #langBtn{right:auto;left:calc(20px + env(safe-area-inset-left))}
+#topBtns{position:absolute;top:calc(12px + env(safe-area-inset-top));right:calc(12px + env(safe-area-inset-right));z-index:6;display:flex;gap:8px;pointer-events:auto;transition:opacity .3s ease,visibility 0s linear .3s}
+#topBtns.off{opacity:0;visibility:hidden;pointer-events:none}
+.tbtn{width:48px;height:48px;border-radius:14px;border:1px solid var(--line);background:rgba(10,5,30,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;cursor:pointer;display:grid;place-items:center;font:inherit;font-size:19px;padding:0}
+.tbtn:hover,.tbtn:focus-visible{border-color:var(--acc2);box-shadow:0 0 0 1px var(--acc2),0 0 22px var(--glow2);outline:none}
+.tbtn:active{transform:scale(.96)}
+.tbtn svg{display:block}
+.tbtn b{font-weight:800}
+.tbtn .lcode{font-size:12px;letter-spacing:.08em}
+html[dir=rtl] #topBtns{right:auto;left:calc(12px + env(safe-area-inset-left))}
 .logo{font-size:clamp(64px,13vw,168px);font-weight:900;letter-spacing:.22em;padding-left:.22em;line-height:1;background:linear-gradient(90deg,#fff,var(--acc2),var(--acc),#fff,var(--acc2));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 9s linear infinite;filter:drop-shadow(0 0 26px var(--glow))}
 .logo-sub{font-size:clamp(20px,3.4vw,34px);font-weight:800;letter-spacing:.62em;padding-left:.62em;margin-top:-14px;color:var(--acc2);text-shadow:0 0 18px var(--glow2)}
 .tagline{font-size:clamp(14px,2.1vw,20px);letter-spacing:.35em;text-transform:uppercase;color:var(--sub);text-align:center}
@@ -68,11 +70,10 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radiu
 #hearts{display:flex;gap:6px}
 #hearts svg{width:26px;height:26px;filter:drop-shadow(0 0 8px var(--glow));transition:opacity .3s,transform .3s}
 #hearts svg.lost{opacity:.18;filter:none;transform:scale(.85)}
-#pauseBtn,#fsHudBtn,#splashFs{pointer-events:auto;width:56px;height:56px;border-radius:14px;border:1px solid var(--line);background:rgba(10,5,30,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;display:grid;place-items:center}
+#pauseBtn,#fsHudBtn{pointer-events:auto;width:56px;height:56px;border-radius:14px;border:1px solid var(--line);background:rgba(10,5,30,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;display:grid;place-items:center}
 #pauseBtn i{display:block;width:16px;height:18px;border-left:5px solid #fff;border-right:5px solid #fff}
-#pauseBtn:hover,#fsHudBtn:hover,#splashFs:hover{border-color:var(--acc2);box-shadow:0 0 20px var(--glow2)}
+#pauseBtn:hover,#fsHudBtn:hover{border-color:var(--acc2);box-shadow:0 0 20px var(--glow2)}
 #fsHudBtn svg{display:block}
-#splashFs{position:absolute;bottom:calc(18px + env(safe-area-inset-bottom));right:calc(18px + env(safe-area-inset-right));width:52px;height:52px}
 #powers{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
 .pw{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:12px;background:rgba(0,0,0,.4);border:1px solid var(--line);font-size:14px;font-weight:700;letter-spacing:.08em;white-space:nowrap}
 .pw .bar{width:70px;height:5px;border-radius:5px;background:rgba(255,255,255,.15);overflow:hidden}
@@ -127,13 +128,16 @@ html[lang=ar] *{letter-spacing:0!important}
 <canvas id="c"></canvas>
 <div id="jump"></div>
 <div id="ui">
-<button id="langBtn" class="on" data-act="langs" aria-label="Language" title="Language"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><b class="lcode">EN</b></button>
+<div id="topBtns">
+<button class="tbtn" data-act="langs" aria-label="Language" title="Language"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><b class="lcode">EN</b></button>
+<button class="tbtn" id="musicTopBtn" data-act="music" aria-label="Music" title="Music">🔊</button>
+<button class="tbtn" data-act="fullscreen" aria-label="Fullscreen" title="Fullscreen"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
+</div>
 <section id="splash" class="screen active">
 <div class="logo">SALIRE</div>
 <div class="logo-sub">PILAM</div>
 <div class="tagline" data-i18n="tagline"></div>
 <div class="enter pulse" data-i18n="clickToStart"></div>
-<button id="splashFs" data-act="fullscreen" aria-label="Fullscreen"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
 </section>
 <section id="menu" class="screen">
 <div class="logo">SALIRE</div>
@@ -155,20 +159,14 @@ html[lang=ar] *{letter-spacing:0!important}
 <button class="btn" data-act="ach" data-i18n="ach"></button>
 <button class="btn" data-act="records" data-i18n="records"></button>
 <button class="btn" data-act="builder" data-i18n="builder"></button>
-</div>
-<nav class="btns">
-<button class="btn" data-act="howto" data-i18n="howto"></button>
 <button class="btn" data-act="settings" data-i18n="settings"></button>
-<button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
-<button class="btn" data-act="langs" data-i18n="language"></button>
-</nav>
+</div>
 <div class="bestline">💎 <b id="menuBank">0</b> · <span data-i18n="best"></span> <b id="menuBest">0</b></div>
-<div class="corner">v3.0</div>
+<div class="corner">v3.1</div>
 </section>
 <section id="langs" class="screen">
 <h2 data-i18n="language"></h2>
 <div class="grid" id="langGrid"></div>
-<button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
 <button class="btn" data-act="back" data-i18n="back"></button>
 </section>
 <section id="settings" class="screen">
@@ -198,7 +196,6 @@ html[lang=ar] *{letter-spacing:0!important}
 <li><span class="ic">⬇</span><span data-i18n="h8"></span></li>
 </ul>
 </div>
-<button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
 <button class="btn" data-act="back" data-i18n="back"></button>
 </section>
 <div id="hud">
@@ -217,7 +214,6 @@ html[lang=ar] *{letter-spacing:0!important}
 <button class="btn primary" data-act="resume" data-i18n="resume"></button>
 <button class="btn" data-act="restart" data-i18n="restart"></button>
 <button class="btn" data-act="settings" data-i18n="settings"></button>
-<button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
 <button class="btn" data-act="menu" data-i18n="menu"></button>
 </nav>
 </section>
@@ -232,7 +228,6 @@ html[lang=ar] *{letter-spacing:0!important}
 </div>
 <nav class="btns">
 <button class="btn primary" data-act="retry" data-i18n="retry"></button>
-<button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
 <button class="btn" data-act="menu" data-i18n="menu"></button>
 </nav>
 </section>
@@ -247,7 +242,6 @@ html[lang=ar] *{letter-spacing:0!important}
 </div>
 <nav class="btns">
 <button class="btn primary" data-act="campaign" data-i18n="playAgain"></button>
-<button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
 <button class="btn" data-act="menu" data-i18n="menu"></button>
 </nav>
 </section>
@@ -307,7 +301,7 @@ I18N.en = {
   h2: "Hold the jump longer to fly higher.",
   h3: "Tap or left click — menus and buttons.",
   h4: "Collect light shards in a row to build a combo.",
-  h5: "Don't bump into granny, the schoolboy, the butterfly catcher or windmills — and don't fall into pits.",
+  h5: "Don't bump into granny, the schoolboy, the catcher, windmills, the pecking heron or the pouncing cat — and the trash bin swallows you whole!",
   h6: "Esc or P — pause. Space or W also jumps.",
   h7: "Flags are checkpoints — after a defeat you restart the level, not the whole game.",
   hintJump: "Tap to jump", zone: "Zone",
@@ -347,7 +341,7 @@ I18N.fr = {
   h2: "Maintiens le saut plus longtemps pour monter plus haut.",
   h3: "Tape ou clic gauche — menus et boutons.",
   h4: "Ramassez les éclats de lumière à la suite pour enchaîner les combos.",
-  h5: "Ne percute pas la mamie, l'écolier, le chasseur de papillons ni les moulins — et ne tombe pas dans les trous.",
+  h5: "Ne percute pas la mamie, l’écolier, le chasseur, les moulins, le héron qui pique ou le chat bondissant — et la poubelle t’avale tout entier !",
   h6: "Échap ou P — pause. Espace ou W permet aussi de sauter.",
   h7: "Les drapeaux sont des points de contrôle — après un échec, on recommence le niveau, pas toute la partie.",
   hintJump: "Tape pour sauter", zone: "Zone",
@@ -387,7 +381,7 @@ I18N.de = {
   h2: "Halte den Sprung länger gedrückt, um höher zu fliegen.",
   h3: "Tippen oder Linksklick — Menüs und Schaltflächen.",
   h4: "Sammle Lichtsplitter hintereinander für Kombos.",
-  h5: "Lauf nicht gegen Oma, den Schuljungen, den Schmetterlingsfänger oder Windmühlen — und fall nicht in Löcher.",
+  h5: "Lauf nicht gegen Oma, den Schuljungen, den Fänger, Windmühlen, den pickenden Reiher oder die springende Katze — und die Mülltonne verschlingt dich ganz!",
   h6: "Esc oder P — Pause. Leertaste oder W springt ebenfalls.",
   h7: "Flaggen sind Checkpoints — nach einem Fehlschlag startet das Level neu, nicht das ganze Spiel.",
   hintJump: "Tippen zum Springen", zone: "Zone",
@@ -427,7 +421,7 @@ I18N.es = {
   h2: "Mantén el salto más tiempo para volar más alto.",
   h3: "Toca o clic izquierdo — menús y botones.",
   h4: "Recoge fragmentos de luz seguidos para hacer combos.",
-  h5: "No choques con la abuela, el colegial, el cazador de mariposas ni los molinos — y no caigas en los vacíos.",
+  h5: "No choques con la abuela, el colegial, el cazador, los molinos, la garza que picotea o el gato saltarín — ¡y la basura te traga entero!",
   h6: "Esc o P — pausa. Espacio o W también sirven para saltar.",
   h7: "Las banderas son puntos de control: tras un fallo se repite el nivel, no toda la partida.",
   hintJump: "Toca para saltar", zone: "Zona",
@@ -467,7 +461,7 @@ I18N.pt = {
   h2: "Segure o pulo mais tempo para voar mais alto.",
   h3: "Toque ou clique esquerdo — menus e botões.",
   h4: "Colete fragmentos de luz em sequência para fazer combos.",
-  h5: "Não bata na vovó, no garoto, no caçador de borboletas nem nos moinhos — e não caia nos vazios.",
+  h5: "Não bata na vovó, no garoto, no caçador, nos moinhos, na garça que picoteia ou no gato saltador — e o lixo engole você inteiro!",
   h6: "Esc ou P — pausa. Espaço ou W também pulam.",
   h7: "As bandeiras são pontos de controle — após uma derrota, recomeça o nível, não o jogo todo.",
   hintJump: "Toque para pular", zone: "Zona",
@@ -507,7 +501,7 @@ I18N.zh = {
   h2: "长按跳跃可以跳得更高。",
   h3: "点按或左键 — 操作菜单和按钮。",
   h4: "连续收集光之碎片来积累连击。",
-  h5: "别撞上奶奶、学生、捕蝶人和风车，也别掉进深渊。",
+  h5: "别撞上奶奶、学生、捕蝶人、风车、契鹭的苍鹭和跳跃的猫，垃圾桶会吞下你，也别掉进深渊。",
   h6: "Esc 或 P — 暂停。空格或 W 也可以跳跃。",
   h7: "旗帜是检查点——失败后从本关重新开始，而不是从头再来。",
   hintJump: "点按跳跃", zone: "区域",
@@ -547,7 +541,7 @@ I18N.ar = {
   h2: "اضغط مطولًا للقفز أعلى.",
   h3: "اضغط أو الزر الأيسر — القوائم والأزرار.",
   h4: "اجمع شظايا الضوء تباعًا لتكوين سلسلة متتالية.",
-  h5: "لا تصطدم بالجدة أو التلميذ أو صياد الفراشات أو الطواحين، ولا تسقط في الهاوية.",
+  h5: "لا تصطدم بالجدة أو التلميذ أو الصياد أو الطواحين أو الملك الواقف أو القط القافز، وسطل المهملات تبلعك بأكملك!",
   h6: "Esc أو P — إيقاف مؤقت. يمكن القفز أيضًا بمفتاح المسافة أو W.",
   h7: "الأعلام هي نقاط حفظ — بعد الخسارة تعيد المستوى نفسه، لا اللعبة كلها.",
   hintJump: "اضغط للقفز", zone: "المنطقة",
@@ -587,7 +581,7 @@ I18N.uk = {
   h2: "Тримай стрибок довше — летітимеш вище.",
   h3: "Тап або лівий клік — меню й кнопки.",
   h4: "Збирайте уламки світла поспіль, щоб накопичувати комбо.",
-  h5: "Не вдарявся в бабусю, школяра, ловця метеликів і млини — і не падай у прірви.",
+  h5: "Не вдарявся в бабусю, школяра, ловця, млини, чаплю, яка клює, чи стрибучу кішку — а смітник пожерє цілком!",
   h6: "Esc або P — пауза. Пробіл або W теж для стрибка.",
   h7: "Прапорці — це чекпоінти: після поразки рівень починається знову, а не вся гра.",
   hintJump: "Тапні, щоб стрибнути", zone: "Зона",
@@ -627,7 +621,7 @@ I18N.ru = {
   h2: "Держи прыжок дольше — полетишь выше.",
   h3: "Тап или левый клик — меню и кнопки.",
   h4: "Собирайте осколки света подряд, чтобы набирать комбо.",
-  h5: "Не врезайся в бабушку, школьника, ловца бабочек и мельницы — и не падай в пропасти.",
+  h5: "Не врезайся в бабушку, школьника, ловца, мельницы, цаплю с клювом и прыгающую кошку — а мусорный бак проглотит целиком!",
   h6: "Esc или P — пауза. Пробел или W тоже работают для прыжка.",
   h7: "Флажки — чекпоинты: после проигрыша уровень начинается заново, а не вся игра.",
   hintJump: "Тапни, чтобы прыгнуть", zone: "Зона",
@@ -961,6 +955,8 @@ const LEVELS = [
       [23753, 360, 1647],
     ],
     haz: [
+      ["цапля", 5852],
+      ["бак", 10780],
       ["школьник", 2902],
       ["мельница", 3951],
       ["школьник", 5117],
@@ -1053,6 +1049,9 @@ const LEVELS = [
       [26423, 415, 1977],
     ],
     haz: [
+      ["цапля", 2660],
+      ["кошка", 10101],
+      ["бак", 20067],
       ["бабушка", 1818],
       ["бабушка", 3481],
       ["бабушка", 4256],
@@ -1167,6 +1166,9 @@ const LEVELS = [
       [27599, 550, 1801],
     ],
     haz: [
+      ["кошка", 3684],
+      ["цапля", 12702],
+      ["бак", 16534],
       ["ловец", 2763],
       ["ловец", 4652],
       ["ловец", 5588],
@@ -1297,6 +1299,9 @@ const LEVELS = [
       [29241, 486, 3600],
     ],
     haz: [
+      ["кошка", 7130],
+      ["бак", 8591],
+      ["цапля", 15356],
       ["ловец", 1955],
       ["мельница", 4655],
       ["школьник", 5530],
@@ -1432,6 +1437,9 @@ const LEVELS = [
       [29664, 580, 3600],
     ],
     haz: [
+      ["кошка", 3473],
+      ["кошка", 5981],
+      ["бак", 9958],
       ["ловец", 2636],
       ["мельница", 4288],
       ["ловец", 5147],
@@ -1581,7 +1589,7 @@ function genFixedLevel(seed, n, spd, biome, kind) {
     const gap = Math.round((0.3 + r() * 0.35) * spd), w = Math.round((0.9 + r() * 0.8) * spd);
     x += gap; y = Math.round(clamp(y + (r() - 0.5) * 160, 340, 600));
     L.plat.push([x, y, w]);
-    if (r() < 0.5) L.haz.push([GUY_KINDS[Math.floor(r() * 4)], Math.round(x + w * (0.35 + r() * 0.4))]);
+    if (r() < 0.5) L.haz.push([GUY_KINDS[Math.floor(r() * GUY_KINDS.length)], Math.round(x + w * (0.35 + r() * 0.4))]);
     if (r() < 0.25) L.haz.push(["бабочка", Math.round(x - gap * 0.5), y - 130]);
     if (r() < 0.45) L.shards.push(["ряд", x + 60, y - 120, 5]);
     if (r() < 0.2) L.shards.push(["дуга", Math.round(x - gap * 0.5), y, 6]);
@@ -1605,9 +1613,9 @@ function fastFall() {
   }
 }
 const PW_MAP = { "щит": "shield", "магнит": "magnet", "ускорение": "od", "жизнь": "life" };
-const GUY_H = { "бабушка": 52, "школьник": 58, "ловец": 58, "мельница": 96 };
-const GUY_W = { "бабушка": 40, "школьник": 40, "ловец": 40, "мельница": 34 };
-const GUY_KINDS = ["бабушка", "школьник", "ловец", "мельница"];
+const GUY_H = { "бабушка": 52, "школьник": 58, "ловец": 58, "мельница": 96, "цапля": 74, "кошка": 64, "бак": 66 };
+const GUY_W = { "бабушка": 40, "школьник": 40, "ловец": 40, "мельница": 34, "цапля": 30, "кошка": 76, "бак": 50 };
+const GUY_KINDS = ["бабушка", "школьник", "ловец", "мельница", "цапля", "кошка", "бак"];
 const rnd = (a, b) => a + Math.random() * (b - a);
 const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
 const lerp = (a, b, k) => a + (b - a) * k;
@@ -1639,6 +1647,13 @@ function loadLevel(ix) {
   for (const hz of L.haz) {
     if (hz[0] === "бабочка") {
       G.haz.push({ k: "orb", x: hz[1], bx: hz[1], by: hz[2], amp: 40, sp: 2.2, ph: Math.random() * 6.283, alive: true });
+      continue;
+    }
+    if (hz[0] === "кошка") {
+      const pl2 = platUnder(hz[1]);
+      if (!pl2) continue;
+      const ww2 = GUY_W["кошка"];
+      G.haz.push({ k: "cat", guy: "кошка", x: hz[1] - ww2 / 2, bx: hz[1] - ww2 / 2, w: ww2, h: GUY_H["кошка"], plat: pl2, alive: true, seed: Math.floor(Math.random() * 99), leap: 0, state: 0, st: 0, mr: rnd(26, 52), ms: rnd(0.9, 1.5) });
       continue;
     }
     const pl = platUnder(hz[1]);
@@ -1689,7 +1704,7 @@ function decoratePlat(p, d, spd, menu) {
   if (!menu && usable > 240 && Math.random() < (0.38 + 0.45 * d) * dm) nC = (usable > 720 && Math.random() < 0.3 + 0.5 * d) ? 2 : 1;
   for (let i = 0; i < nC; i++) {
     const k = nC === 1 ? rnd(0.3, 0.8) : (i ? rnd(0.7, 0.92) : rnd(0.08, 0.3));
-    const guy = GUY_KINDS[Math.floor(Math.random() * 4)];
+    const guy = GUY_KINDS[Math.floor(Math.random() * GUY_KINDS.length)];
     const cw = GUY_W[guy] + rnd(-4, 8), ch = GUY_H[guy] + rnd(-6, 6), hx = p.x + 200 + (usable - cw) * k;
     G.haz.push({ k: "cry", guy, x: hx, bx: hx, w: cw, h: ch, plat: p, alive: true, seed: Math.random() * 99, mr: rnd(30, 60), ms: rnd(0.9, 1.6) });
     for (let j = -3; j <= 3; j++) G.shards.push({ x: hx + cw / 2 + j * 30, y: 0, oy: -PR - 70 - (60 - j * j * 6), plat: p, ph: j });
@@ -1868,7 +1883,7 @@ function startRescue() {
   if (!pl) pl = G.plats[G.plats.length - 1];
   const tx = Math.max(P.x + 100, pl.x + 70);
   for (const h of G.haz) {
-    if (h.k === "cry" && h.plat === pl && h.x < tx + 320) h.alive = false;
+    if ((h.k === "cry" || h.k === "cat") && h.plat === pl && h.x < tx + 320) h.alive = false;
     if (h.k === "orb" && Math.abs(h.x - tx) < 320) h.alive = false;
   }
   P.rescue = { t: 0, d: 0.8, fx: P.x, fy: Math.min(P.y, G.camY + VH + 40), tx, pl };
@@ -1882,6 +1897,21 @@ function rescueUpdate(dt) {
   P.x = lerp(r.fx, r.tx, e); P.y = lerp(r.fy, r.pl.y - PR - 70, e) - Math.sin(k * Math.PI) * 140; P.vy = 0;
   part(P.x + rnd(-8, 8), P.y + rnd(-8, 8), rnd(-60, 60), rnd(-60, 60), 0.6, rnd(2, 5), curBiome().acc2, 0, 0);
   if (k >= 1) { P.rescue = null; P.jumps = 1; ring(P.x, P.y, "#ffffff", 20); if (P.buf > 0) doJump(true); }
+}
+function startSwallow(h) {
+  const P = G.p;
+  P.swallow = { t: 0, d: 0.6, fx: P.x, fy: P.y, bx: h.x + h.w / 2, by: h.plat.y - h.h * 0.5 };
+  P.on = null; P.vy = 0; P.hold = false; P.jumps = 0;
+  AE.sfx.fall(); addShake(0.4);
+}
+function swallowUpdate(dt) {
+  const P = G.p, s = P.swallow;
+  s.t += dt;
+  const k = clamp(s.t / s.d, 0, 1), e = k * k;
+  P.x = lerp(s.fx, s.bx, e); P.y = lerp(s.fy, s.by, e);
+  P.sx = P.sy = 1 - k * 0.92; P.vy = 0; P.on = null;
+  part(P.x + rnd(-10, 10), P.y + rnd(-10, 10), rnd(-40, 40), rnd(-120, -40), 0.5, rnd(2, 4), "#9fb4c8", 0, 0);
+  if (k >= 1) { const bx = s.bx, by = s.by; P.swallow = null; P.sx = P.sy = 1; burst(bx, by, 20, "#9fb4c8", 380); loseLife("hit"); }
 }
 function smash(h, x, y) {
   h.alive = false; AE.sfx.smash(); addShake(0.25);
@@ -1932,6 +1962,7 @@ function playerUpdate(dt) {
   P.inv -= dt; P.coyote -= dt; P.buf -= dt;
   G.comboT -= dt; if (G.comboT <= 0 && G.combo) G.combo = 0;
   if (P.rescue) { rescueUpdate(dt); G.dist = Math.max(G.dist, P.x - G.startX); return; }
+  if (P.swallow) { swallowUpdate(dt); return; }
   const prevB = P.y + PR;
   P.x += G.speed * dt;
   G.score += (G.speed * dt) / PX_PER_M;
@@ -1991,9 +2022,16 @@ function playerUpdate(dt) {
     if (!h.alive || Math.abs(h.x - P.x) > 120) continue;
     let hit = false, hx = h.x, hy;
     if (h.k === "cry") {
-      const top = h.plat.y - h.h * 0.85, cx = clamp(P.x, h.x + 7, h.x + h.w - 7), cy = clamp(P.y, top, h.plat.y);
+      const top = h.plat.y - h.h * 0.85;
+      let x0 = h.x + 7;
+      if (h.guy === "цапля" && Math.sin(G.t * 1.15 + h.seed * 0.7) > 0.88) x0 -= 46;
+      const cx = clamp(P.x, x0, h.x + h.w - 7), cy = clamp(P.y, top, h.plat.y);
       hit = (P.x - cx) ** 2 + (P.y - cy) ** 2 < (PR * 0.78) ** 2;
       hx = h.x + h.w / 2; hy = h.plat.y - h.h / 2;
+    } else if (h.k === "cat") {
+      const top = h.plat.y - 40 - h.leap, cx = clamp(P.x, h.x + 6, h.x + h.w - 6), cy = clamp(P.y, top, h.plat.y);
+      hit = (P.x - cx) ** 2 + (P.y - cy) ** 2 < (PR * 0.85) ** 2;
+      hx = h.x + h.w / 2; hy = top + 16;
     } else if (h.k === "wave") {
       hy = h.y - 14;
       hit = (P.x - h.x) ** 2 + (P.y - hy) ** 2 < (PR + 13) ** 2;
@@ -2002,6 +2040,7 @@ function playerUpdate(dt) {
       hit = (P.x - h.x) ** 2 + (P.y - hy) ** 2 < (PR + 13) ** 2;
     }
     if (!hit) continue;
+    if (h.guy === "бак" && G.od <= 0 && P.inv <= 0 && !G.shield && !P.swallow) { startSwallow(h); return; }
     if (G.od > 0) smash(h, hx, hy);
     else if (P.inv > 0) continue;
     else if (G.shield) { useShield(P.x, P.y); smash(h, hx, hy); }
@@ -2039,10 +2078,19 @@ function gameUpdate(rdt) {
     for (const h of G.haz) {
       if (!h.alive) continue;
       if (h.k === "cry") h.x = h.bx + Math.sin(G.t * h.ms + h.seed) * h.mr;
+      else if (h.k === "cat") h.x = h.bx + Math.sin(G.t * h.ms + h.seed) * h.mr;
       else if (h.k === "orb") h.x = h.bx + Math.sin(G.t * h.sp * 0.6 + h.ph) * 46;
     }
   }
   for (const h of G.haz) if (h.k === "wave") h.x += h.vx * dt;
+  for (const h of G.haz) {
+    if (h.k !== "cat" || !h.alive || G.mode !== "play") continue;
+    h.st += dt;
+    if (h.state === 0) { h.leap = 0; if (P.x > h.x - 340 && P.x < h.x + 80) { h.state = 1; h.st = 0; } }
+    else if (h.state === 1) { h.leap = 280 * Math.min(1, h.st / 0.22); if (h.st >= 0.22) { h.state = 2; h.st = 0; } }
+    else if (h.state === 2) { h.leap = 280 - Math.sin(h.st * 9) * 12; if (h.st >= 0.65) { h.state = 3; h.st = 0; } }
+    else { h.leap = 300 * Math.max(0, 1 - h.st / 0.22); if (h.st >= 0.22) { h.state = 0; h.st = 0; } }
+  }
   if (G.boss && G.mode === "play") {
     const B = G.boss, P2 = G.p;
     B.inv = Math.max(0, B.inv - dt);
@@ -2453,6 +2501,61 @@ const R = (() => {
       cx.lineTo(w * 0.24, -h * 0.56); cx.moveTo(w * 0.36, -h * 0.38); cx.lineTo(w * 0.48, -h * 0.56); cx.stroke();
       cx.strokeStyle = "#e8e8f4"; cx.lineWidth = 1.5;
       cx.beginPath(); cx.moveTo(w * 0.24, -h * 0.56); cx.lineTo(w * 0.36 - pull * 0.4, -h * 0.48 + pull * 0.3); cx.lineTo(w * 0.48, -h * 0.56); cx.stroke();
+    } else if (kind === "цапля") {
+      const pk = Math.max(0, Math.sin(tt * 1.15 + (hz && hz.seed ? hz.seed * 0.7 : 0)));
+      const lunge = pk > 0.88 ? (pk - 0.88) / 0.12 : 0;
+      cx.strokeStyle = "#8fa3b8"; cx.lineWidth = 2.5;
+      cx.beginPath(); cx.moveTo(-w * 0.1, 0); cx.lineTo(-w * 0.16, -h * 0.42); cx.moveTo(w * 0.16, 0); cx.lineTo(w * 0.1, -h * 0.42); cx.stroke();
+      cx.fillStyle = "#cfdde9"; cx.strokeStyle = "#5b7186"; cx.lineWidth = 2;
+      cx.beginPath(); cx.ellipse(0, -h * 0.56, w * 0.44, h * 0.2, -0.12, 0, 6.283); cx.fill(); cx.stroke();
+      const hx2 = -w * (0.3 + lunge * 0.55), hy2 = -h * (0.82 + lunge * 0.05);
+      cx.strokeStyle = "#cfdde9"; cx.lineWidth = 4.5;
+      cx.beginPath(); cx.moveTo(w * 0.05, -h * 0.66); cx.quadraticCurveTo(-w * 0.25, -h * 0.9, hx2, hy2); cx.stroke();
+      cx.fillStyle = "#cfdde9"; cx.beginPath(); cx.arc(hx2, hy2, w * 0.17, 0, 6.283); cx.fill(); cx.stroke();
+      cx.fillStyle = "#e8912a"; cx.strokeStyle = "#9c5c12"; cx.lineWidth = 1.5;
+      cx.beginPath(); cx.moveTo(hx2 - w * 0.08, hy2 - 2.5); cx.lineTo(hx2 - w * 0.08 - 15 - lunge * 32, hy2 + 1 + lunge * 3); cx.lineTo(hx2 - w * 0.08, hy2 + 4); cx.closePath(); cx.fill(); cx.stroke();
+      cx.fillStyle = "#20303e"; cx.beginPath(); cx.arc(hx2 - 1.5, hy2 - 2.5, 1.4, 0, 6.283); cx.fill();
+    } else if (kind === "кошка") {
+      const lp = hz && hz.leap ? hz.leap : 0, k2 = lp / 300;
+      cx.translate(0, -lp);
+      cx.scale(1 + k2 * 0.06, 1 - k2 * 0.1);
+      cx.strokeStyle = "#454a5e"; cx.lineWidth = 5;
+      cx.beginPath(); cx.moveTo(w * 0.3, -h * 0.5); cx.quadraticCurveTo(w * 0.62, -h * 0.72 + Math.sin(tt * 3) * 6, w * 0.5, -h * 1.05); cx.stroke();
+      cx.fillStyle = "#454a5e"; cx.strokeStyle = "#191d2c"; cx.lineWidth = 2;
+      cx.beginPath(); cx.ellipse(0, -h * 0.42, w * 0.4, h * 0.34, 0, 0, 6.283); cx.fill(); cx.stroke();
+      if (lp < 12) {
+        cx.lineWidth = 4;
+        cx.beginPath(); cx.moveTo(-w * 0.22, -h * 0.16); cx.lineTo(-w * 0.22, 0); cx.moveTo(w * 0.02, -h * 0.16); cx.lineTo(w * 0.02, 0); cx.moveTo(w * 0.22, -h * 0.16); cx.lineTo(w * 0.22, 0); cx.stroke();
+      }
+      const hdx = -w * 0.28, hdy = -h * 0.78;
+      cx.fillStyle = "#454a5e";
+      cx.beginPath(); cx.arc(hdx, hdy, w * 0.19, 0, 6.283); cx.fill(); cx.stroke();
+      cx.beginPath(); cx.moveTo(hdx - w * 0.16, hdy - w * 0.1); cx.lineTo(hdx - w * 0.22, hdy - w * 0.34); cx.lineTo(hdx - w * 0.02, hdy - w * 0.2); cx.closePath(); cx.fill(); cx.stroke();
+      cx.beginPath(); cx.moveTo(hdx + w * 0.04, hdy - w * 0.2); cx.lineTo(hdx + w * 0.12, hdy - w * 0.36); cx.lineTo(hdx + w * 0.18, hdy - w * 0.12); cx.closePath(); cx.fill(); cx.stroke();
+      cx.fillStyle = "#e8a0b0";
+      cx.beginPath(); cx.moveTo(hdx - w * 0.13, hdy - w * 0.14); cx.lineTo(hdx - w * 0.16, hdy - w * 0.26); cx.lineTo(hdx - w * 0.06, hdy - w * 0.18); cx.closePath(); cx.fill();
+      cx.globalCompositeOperation = "lighter"; glow("#ffd23f", hdx - w * 0.08, hdy - 1, 10, 0.7); glow("#ffd23f", hdx + w * 0.07, hdy - 1, 10, 0.7); cx.globalCompositeOperation = "source-over";
+      cx.fillStyle = "#ffd23f";
+      cx.beginPath(); cx.ellipse(hdx - w * 0.08, hdy - 1, 2.4, 3.2, 0, 0, 6.283); cx.ellipse(hdx + w * 0.07, hdy - 1, 2.2, 3, 0, 0, 6.283); cx.fill();
+      cx.strokeStyle = "#cfd8e8"; cx.lineWidth = 1;
+      cx.beginPath(); cx.moveTo(hdx - w * 0.16, hdy + 3); cx.lineTo(hdx - w * 0.36, hdy + 1); cx.moveTo(hdx - w * 0.16, hdy + 5); cx.lineTo(hdx - w * 0.36, hdy + 7); cx.stroke();
+    } else if (kind === "бак") {
+      const near = G.p && Math.abs(G.p.x - G.camX - x) < 180;
+      hz.open = lerp(hz.open || 0, near ? 1 : 0, 0.14);
+      const op = hz.open;
+      if (op > 0.25) { cx.globalCompositeOperation = "lighter"; glow("#8fd0ff", 0, -h + 4, 34, 0.45 * op); cx.globalCompositeOperation = "source-over"; }
+      cx.fillStyle = "#46586c"; cx.strokeStyle = "#1f2836"; cx.lineWidth = 2;
+      cx.beginPath(); cx.moveTo(-w * 0.44, 0); cx.lineTo(-w * 0.36, -h); cx.lineTo(w * 0.36, -h); cx.lineTo(w * 0.44, 0); cx.closePath(); cx.fill(); cx.stroke();
+      cx.strokeStyle = "#1f2836"; cx.lineWidth = 1.5;
+      cx.beginPath(); cx.moveTo(-w * 0.4, -h * 0.32); cx.lineTo(w * 0.4, -h * 0.32); cx.moveTo(-w * 0.38, -h * 0.64); cx.lineTo(w * 0.38, -h * 0.64); cx.stroke();
+      cx.fillStyle = "#101620"; cx.beginPath(); cx.ellipse(0, -h + 1, w * 0.36, 5, 0, 0, 6.283); cx.fill();
+      cx.save(); cx.translate(w * 0.4, -h); cx.rotate(-op * 1.15);
+      cx.fillStyle = "#54687e"; cx.strokeStyle = "#1f2836"; cx.lineWidth = 2;
+      cx.beginPath(); cx.ellipse(-w * 0.05, 0, w * 0.48, 6, 0, 0, 6.283); cx.fill(); cx.stroke();
+      cx.fillStyle = "#6b8098"; cx.fillRect(-w * 0.1, -4, w * 0.2, 4);
+      cx.restore();
+      cx.fillStyle = "#8fd0ff"; cx.globalAlpha = 0.7;
+      cx.fillRect(-w * 0.16, -h * 0.52, w * 0.32, h * 0.16); cx.globalAlpha = 1;
     } else {
       cx.fillStyle = "#4fae6b"; cx.strokeStyle = "#1e5a33"; cx.lineWidth = 2;
       cx.beginPath(); cx.rect(-w * 0.26, -h * 0.58, w * 0.52, h * 0.58); cx.fill(); cx.stroke();
@@ -2527,6 +2630,10 @@ const R = (() => {
         const by = h.plat.y - G.camY + oy, m = x + h.w / 2;
         cx.globalCompositeOperation = "lighter"; glow("#ff2d6f", m, by - h.h * 0.45, h.h * 1.1, 0.3 + 0.1 * Math.sin(G.t * 6 + h.seed)); cx.globalCompositeOperation = "source-over";
         guy(h.guy, m, by, h.w, h.h, h);
+      } else if (h.k === "cat") {
+        const by = h.plat.y - G.camY + oy, m = x + h.w / 2;
+        cx.globalCompositeOperation = "lighter"; glow("#ffd23f", m, by - 40 - h.leap, 90, 0.22 + 0.1 * Math.sin(G.t * 6 + h.seed)); cx.globalCompositeOperation = "source-over";
+        guy("кошка", m, by, h.w, h.h, h);
       } else if (h.k === "wave") {
         const wy = h.y - G.camY + oy - 14;
         cx.globalCompositeOperation = "lighter"; glow("#ff6a3d", x, wy, 44, 0.55); cx.globalCompositeOperation = "source-over";
@@ -2714,7 +2821,7 @@ const R = (() => {
   function show(id) {
     screen = id;
     document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
-    const lb = $("langBtn"); if (lb) lb.classList.toggle("on", id === "splash" || id === "menu");
+    const tb = $("topBtns"); if (tb) tb.classList.toggle("off", !id && G.mode === "play");
     if (id === "shop") refreshShop();
     else if (id === "records") renderRecords();
     else if (id === "ach") renderAch();
@@ -2787,6 +2894,7 @@ const R = (() => {
     $("qualityBtn").textContent = t(G.hq ? "high" : "low");
     $("shakeBtn").textContent = t(G.shakeOn ? "on" : "off");
     $("musicBtn").textContent = t(musicOn ? "on" : "off");
+    const mt = $("musicTopBtn"); if (mt) mt.textContent = musicOn ? "\ud83d\udd0a" : "\ud83d\udd07";
     $("trackBtn").textContent = t("tr" + TRACK_SEL.charAt(0).toUpperCase() + TRACK_SEL.slice(1));
     document.querySelectorAll("#diffSeg .btn").forEach(b => b.classList.toggle("on", b.dataset.diff === G.diffMode));
   }
@@ -2803,7 +2911,6 @@ const R = (() => {
     root.lang = LANG; root.dir = RTL_LANGS.indexOf(LANG) >= 0 ? "rtl" : "ltr";
     document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.dataset.i18n); });
     document.title = "Salire: Pilam — " + t("tagline");
-    const lb = $("langBtn"); if (lb) { lb.title = t("language"); lb.setAttribute("aria-label", t("language")); }
     document.querySelectorAll(".lcode").forEach(el => { el.textContent = LANG.toUpperCase(); });
     buildLangGrid(); refreshToggles(); updateBest(); clearLast(); pwKey = "#";
     if (G.mode === "play") renderHearts(true);
@@ -3021,7 +3128,7 @@ const R = (() => {
     if (el.blur) el.blur();
   });
   document.addEventListener("mouseover", e => {
-    const b = e.target.closest ? e.target.closest(".btn,#langBtn") : null;
+    const b = e.target.closest ? e.target.closest(".btn,.tbtn") : null;
     if (b !== hov) { hov = b; if (b) AE.sfx.hover(); }
   });
   const pressJump = () => {
