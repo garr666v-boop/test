@@ -14,13 +14,13 @@ canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 .screen{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;opacity:0;visibility:hidden;transform:scale(1.035);transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s;pointer-events:none}
 .screen.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .45s ease;pointer-events:auto}
 #splash{cursor:pointer}
-#langBtn{position:absolute;top:16px;right:20px;z-index:6;display:flex;align-items:center;gap:8px;height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:inherit;font-size:15px;font-weight:750;letter-spacing:.14em;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s,transform .18s ease,border-color .18s,box-shadow .18s}
+#langBtn{position:absolute;top:calc(16px + env(safe-area-inset-top));right:calc(20px + env(safe-area-inset-right));z-index:6;display:flex;align-items:center;gap:8px;height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:inherit;font-size:15px;font-weight:750;letter-spacing:.14em;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s,transform .18s ease,border-color .18s,box-shadow .18s}
 #langBtn.on{opacity:1;visibility:visible;pointer-events:auto;transition:opacity .45s ease,transform .18s ease,border-color .18s,box-shadow .18s}
 #langBtn:hover,#langBtn:focus-visible{transform:translateY(-2px);border-color:var(--acc2);box-shadow:0 0 0 1px var(--acc2),0 0 22px var(--glow2);outline:none}
 #langBtn:active{transform:scale(.97)}
 #langBtn svg{display:block;flex:0 0 auto;filter:drop-shadow(0 0 6px var(--glow2))}
 #langBtn b{font-weight:800}
-html[dir=rtl] #langBtn{right:auto;left:20px}
+html[dir=rtl] #langBtn{right:auto;left:calc(20px + env(safe-area-inset-left))}
 .logo{font-size:clamp(64px,13vw,168px);font-weight:900;letter-spacing:.22em;padding-left:.22em;line-height:1;background:linear-gradient(90deg,#fff,var(--acc2),var(--acc),#fff,var(--acc2));background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shine 9s linear infinite;filter:drop-shadow(0 0 26px var(--glow))}
 .logo-sub{font-size:clamp(20px,3.4vw,34px);font-weight:800;letter-spacing:.62em;padding-left:.62em;margin-top:-14px;color:var(--acc2);text-shadow:0 0 18px var(--glow2)}
 .tagline{font-size:clamp(14px,2.1vw,20px);letter-spacing:.35em;text-transform:uppercase;color:var(--sub);text-align:center}
@@ -56,7 +56,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radiu
 .ic{flex:0 0 44px;height:44px;display:grid;place-items:center;border-radius:12px;background:rgba(255,255,255,.07);border:1px solid var(--line);font-size:13px;font-weight:800;letter-spacing:.05em}
 #hud{position:absolute;inset:0;z-index:2;opacity:0;transition:opacity .4s;pointer-events:none}
 #hud.on{opacity:1}
-.hud-top{position:absolute;top:16px;left:20px;right:20px;display:flex;justify-content:space-between;align-items:flex-start}
+.hud-top{position:absolute;top:calc(16px + env(safe-area-inset-top));left:calc(20px + env(safe-area-inset-left));right:calc(20px + env(safe-area-inset-right));display:flex;justify-content:space-between;align-items:flex-start}
 #score{font-size:clamp(28px,4vw,42px);font-weight:900;font-variant-numeric:tabular-nums;line-height:1.05;text-shadow:0 0 18px var(--glow)}
 #dist{margin-top:4px;font-size:15px;color:var(--sub);letter-spacing:.14em;font-variant-numeric:tabular-nums}
 #combo{position:absolute;top:14px;left:50%;transform:translateX(-50%);text-align:center;opacity:0;transition:opacity .25s}
@@ -68,7 +68,7 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radiu
 #hearts{display:flex;gap:6px}
 #hearts svg{width:26px;height:26px;filter:drop-shadow(0 0 8px var(--glow));transition:opacity .3s,transform .3s}
 #hearts svg.lost{opacity:.18;filter:none;transform:scale(.85)}
-#pauseBtn{pointer-events:auto;width:48px;height:48px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;display:grid;place-items:center}
+#pauseBtn{pointer-events:auto;width:56px;height:56px;border-radius:14px;border:1px solid var(--line);background:rgba(10,5,30,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);cursor:pointer;display:grid;place-items:center}
 #pauseBtn i{display:block;width:16px;height:18px;border-left:5px solid #fff;border-right:5px solid #fff}
 #pauseBtn:hover{border-color:var(--acc2);box-shadow:0 0 20px var(--glow2)}
 #powers{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);display:flex;gap:10px}
@@ -133,7 +133,7 @@ html[lang=ar] *{letter-spacing:0!important}
 <button class="btn" data-act="langs" data-i18n="language"></button>
 </nav>
 <div class="bestline"><span data-i18n="best"></span> · <b id="menuBest">0</b></div>
-<div class="corner">v2.0</div>
+<div class="corner">v2.2</div>
 </section>
 <section id="langs" class="screen">
 <h2 data-i18n="language"></h2>
