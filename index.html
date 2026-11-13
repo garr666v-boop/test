@@ -11,7 +11,7 @@
 html,body{width:100%;height:100%;overflow:hidden;background:#05010d;color:#fff;font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Roboto,"Noto Sans","PingFang SC","Microsoft YaHei","Noto Sans SC","Noto Sans Arabic","Segoe UI Arabic",Tahoma,Arial,sans-serif;user-select:none;-webkit-user-select:none;touch-action:none;cursor:default}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
 #ui{position:fixed;inset:0;z-index:10;pointer-events:none}
-.screen{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;opacity:0;visibility:hidden;transform:scale(1.035);transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s;pointer-events:none}
+.screen{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;overflow-y:auto;opacity:0;visibility:hidden;transform:scale(1.035);transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s;pointer-events:none}
 .screen.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .45s ease;pointer-events:auto}
 #splash{cursor:pointer}
 #langBtn{position:absolute;top:calc(16px + env(safe-area-inset-top));right:calc(20px + env(safe-area-inset-right));z-index:6;display:flex;align-items:center;gap:8px;height:48px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);color:#fff;font:inherit;font-size:15px;font-weight:750;letter-spacing:.14em;cursor:pointer;opacity:0;visibility:hidden;pointer-events:none;transition:opacity .45s ease,visibility 0s linear .45s,transform .18s ease,border-color .18s,box-shadow .18s}
@@ -104,6 +104,23 @@ input[type=range]::-moz-range-thumb{width:24px;height:24px;border:0;border-radiu
 html[lang=ar] *{letter-spacing:0!important}
 @media (max-height:560px){.screen{gap:12px;padding:14px}.btn{min-height:46px}.logo{font-size:clamp(44px,10vw,100px)}.panel-box{padding:18px 22px}}
 @media (max-width:520px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.grid.small{width:min(360px,88vw);grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.small .btn{min-height:46px;font-size:15px}
+#dailyBadge{color:var(--acc);margin-left:6px}
+.reclist{list-style:none;padding:0;margin:0;width:min(420px,90vw);display:flex;flex-direction:column;gap:10px}
+.reclist li{display:flex;justify-content:space-between;gap:14px;padding:12px 18px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);font-weight:650}
+.reclist li b{color:var(--acc)}
+.reclist .recdate{opacity:.6;font-weight:400;font-size:14px}
+.achlist{list-style:none;padding:0;margin:0;width:min(460px,92vw);display:flex;flex-direction:column;gap:8px;max-height:56vh;overflow-y:auto}
+.achlist li{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);opacity:.5;font-size:15px}
+.achlist li.done{opacity:1;border-color:var(--acc);background:rgba(255,255,255,.08)}
+.achlist li.done::before{content:"✔";color:var(--acc);font-weight:900}
+.achlist li::before{content:"🔒";opacity:.6}
+.bldtext{width:min(560px,92vw);height:34vh;min-height:120px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.4);color:#cfe8ff;font:13px/1.5 ui-monospace,monospace;padding:12px;resize:vertical}
+.bldmsg{min-height:22px;font-size:14px;font-weight:650;color:#ff8ba0}
+.bldmsg.ok{color:var(--acc)}
+#toast{position:fixed;left:50%;bottom:calc(96px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(16px);z-index:20;background:rgba(10,5,30,.9);border:1px solid var(--acc);border-radius:14px;padding:12px 24px;font-weight:750;font-size:16px;letter-spacing:.04em;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;white-space:nowrap;max-width:92vw}
+#toast.on{opacity:1;transform:translateX(-50%)}
 </style>
 </head>
 <body>
@@ -130,13 +147,23 @@ html[lang=ar] *{letter-spacing:0!important}
 <nav class="btns">
 <button class="btn primary" data-act="campaign" data-i18n="campaign"></button>
 <button class="btn" data-act="play" data-i18n="endless"></button>
+<button class="btn" data-act="sprint" data-i18n="sprint"></button>
+<button class="btn" data-act="daily"><span data-i18n="daily"></span><span id="dailyBadge"></span></button>
+</nav>
+<div class="grid small">
+<button class="btn" data-act="shop" data-i18n="shop"></button>
+<button class="btn" data-act="ach" data-i18n="ach"></button>
+<button class="btn" data-act="records" data-i18n="records"></button>
+<button class="btn" data-act="builder" data-i18n="builder"></button>
+</div>
+<nav class="btns">
 <button class="btn" data-act="howto" data-i18n="howto"></button>
 <button class="btn" data-act="settings" data-i18n="settings"></button>
 <button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
 <button class="btn" data-act="langs" data-i18n="language"></button>
 </nav>
-<div class="bestline"><span data-i18n="best"></span> · <b id="menuBest">0</b></div>
-<div class="corner">v2.4</div>
+<div class="bestline">💎 <b id="menuBank">0</b> · <span data-i18n="best"></span> <b id="menuBest">0</b></div>
+<div class="corner">v3.0</div>
 </section>
 <section id="langs" class="screen">
 <h2 data-i18n="language"></h2>
@@ -168,6 +195,7 @@ html[lang=ar] *{letter-spacing:0!important}
 <li><span class="ic"><svg viewBox="0 0 24 24" width="22" height="22"><path d="M3 21l4-11 3 5 3-12 3 12 2-4 3 10z" fill="#3a1060" stroke="#ff4b6e" stroke-width="1.5" stroke-linejoin="round"/></svg></span><span data-i18n="h5"></span></li>
 <li><span class="ic">Esc</span><span data-i18n="h6"></span></li>
 <li><span class="ic" style="color:var(--acc)">&#9873;</span><span data-i18n="h7"></span></li>
+<li><span class="ic">⬇</span><span data-i18n="h8"></span></li>
 </ul>
 </div>
 <button class="btn" data-act="fullscreen" data-i18n="fullscreen"></button>
@@ -209,8 +237,8 @@ html[lang=ar] *{letter-spacing:0!important}
 </nav>
 </section>
 <section id="win" class="screen">
-<div class="over-title" data-i18n="winTitle"></div>
-<div class="tagline" data-i18n="winSub"></div>
+<div class="over-title" id="winTitleEl" data-i18n="winTitle"></div>
+<div class="tagline" id="winSubEl" data-i18n="winSub"></div>
 <div class="stats">
 <div class="stat"><span data-i18n="score"></span><b id="wnScore">0</b></div>
 <div class="stat"><span data-i18n="shards"></span><b id="wnShards">0</b></div>
@@ -223,7 +251,40 @@ html[lang=ar] *{letter-spacing:0!important}
 <button class="btn" data-act="menu" data-i18n="menu"></button>
 </nav>
 </section>
+<section id="shop" class="screen">
+<h2 data-i18n="shopTitle"></h2>
+<div class="bestline">💎 <b id="shopBank">0</b></div>
+<div class="panel-box">
+<div class="row"><label data-i18n="perkShield"></label><button class="btn toggle" data-perk="shield"></button></div>
+<div class="row"><label data-i18n="perkLife"></label><button class="btn toggle" data-perk="life"></button></div>
+<div class="row"><label data-i18n="perkMagnet"></label><button class="btn toggle" data-perk="magnet"></button></div>
 </div>
+<h2 data-i18n="skins"></h2>
+<div class="grid" id="skinGrid"></div>
+<button class="btn" data-act="back" data-i18n="back"></button>
+</section>
+<section id="records" class="screen">
+<h2 data-i18n="records"></h2>
+<ol id="recList" class="reclist"></ol>
+<button class="btn" data-act="back" data-i18n="back"></button>
+</section>
+<section id="ach" class="screen">
+<h2 data-i18n="ach"></h2>
+<ul id="achList" class="achlist"></ul>
+<button class="btn" data-act="back" data-i18n="back"></button>
+</section>
+<section id="builder" class="screen">
+<h2 data-i18n="builder"></h2>
+<textarea id="bldText" class="bldtext" spellcheck="false"></textarea>
+<div id="bldMsg" class="bldmsg"></div>
+<div class="grid small">
+<button class="btn" data-act="exportLv" data-i18n="exportLv"></button>
+<button class="btn primary" data-act="playCustom" data-i18n="playCustom"></button>
+</div>
+<button class="btn" data-act="back" data-i18n="back"></button>
+</section>
+</div>
+<div id="toast"></div>
 <script>
 /* LUMEN — i18n + storage. Globals: Store, LANGS, I18N, LANG, t(), detectLang(), RTL_LANGS */
 "use strict";
@@ -257,7 +318,22 @@ I18N.en = {
   trAuto: "Auto", trMenu: "Menu theme", trCity: "Neon City", trCaves: "Crystal Caverns", trAurora: "Aurora Peaks", trStorm: "Solar Storm", trMeadow: "Meadow Morning", trHard: "Hardcore Drive", trWin: "Victory",
   level: "Level", checkpoint: "Checkpoint!", levelDone: "Level complete!",
   winTitle: "You win!", winSub: "Campaign complete", playAgain: "Play again",
-  lv1: "First Steps", lv2: "Windmill Hills", lv3: "Trap Trail"
+  lv1: "First Steps", lv2: "Windmill Hills", lv3: "Trap Trail",
+  shop: "Shop", shopTitle: "Shop", crystals: "Crystals",
+  perkShield: "Starting shield", perkLife: "Spare life", perkMagnet: "Starting magnet",
+  bought: "Owned", noCrystals: "Not enough crystals", skins: "Skins",
+  skClassic: "Classic", skEmber: "Ember", skIce: "Ice", skToxic: "Toxic", skGold: "Gold", skVoid: "Void",
+  records: "Records", recordsEmpty: "No records yet",
+  daily: "Daily challenge", dailyDone: "Completed today!", dailyWin: "Daily challenge complete!",
+  sprint: "Sprint", sprintDone: "Finish!", sprintNew: "New best time!", bestTime: "Best time",
+  ach: "Awards", achFirst: "First run", achSh100: "Collector \u2014 100 crystals", achSh1000: "Crystal master \u2014 1000",
+  achCombo: "Combo master \u2014 x15", achL1: "Warmed up", achCamp: "Hero of light", achHard: "Hardcore hero",
+  achDaily: "Daily hero", achBoss: "Giant slayer", achFlawless: "Flawless level", achSprint: "Sprinter",
+  builder: "My levels", exportLv: "Export current level", playCustom: "Play this level",
+  badLevel: "Invalid level data", customDone: "Custom level complete!",
+  z5: "Lava Depths", trLava: "Lava Depths", bossWarn: "BOSS!", bossHint: "Jump on top 3 times!",
+  lv4: "Molten Road", lv5: "Final Ascent",
+  h8: "Swipe down or S \u2014 fast fall."
 };
 I18N.fr = {
   tagline: "Un voyage à travers la lumière vivante", clickToStart: "Cliquez pour commencer",
@@ -282,7 +358,22 @@ I18N.fr = {
   trAuto: "Auto", trMenu: "Thème du menu", trCity: "Cité Néon", trCaves: "Cavernes de cristal", trAurora: "Pics de l'aurore", trStorm: "Tempête solaire", trMeadow: "Matin des prés", trHard: "Hardcore Drive", trWin: "Victoire",
   level: "Niveau", checkpoint: "Checkpoint !", levelDone: "Niveau terminé !",
   winTitle: "Tu as gagné !", winSub: "Campagne terminée", playAgain: "Rejouer",
-  lv1: "Premiers pas", lv2: "Collines aux moulins", lv3: "Sentier des pièges"
+  lv1: "Premiers pas", lv2: "Collines aux moulins", lv3: "Sentier des pièges",
+  shop: "Boutique", shopTitle: "Boutique", crystals: "Cristaux",
+  perkShield: "Bouclier de d\u00e9part", perkLife: "Vie de r\u00e9serve", perkMagnet: "Aimant de d\u00e9part",
+  bought: "Achet\u00e9", noCrystals: "Pas assez de cristaux", skins: "Apparences",
+  skClassic: "Classique", skEmber: "Braise", skIce: "Glace", skToxic: "Toxique", skGold: "Or", skVoid: "N\u00e9ant",
+  records: "Records", recordsEmpty: "Aucun record pour l'instant",
+  daily: "D\u00e9fi du jour", dailyDone: "Termin\u00e9 aujourd'hui !", dailyWin: "D\u00e9fi du jour r\u00e9ussi !",
+  sprint: "Sprint", sprintDone: "Arriv\u00e9e !", sprintNew: "Nouveau record !", bestTime: "Meilleur temps",
+  ach: "Succ\u00e8s", achFirst: "Premi\u00e8re course", achSh100: "Collectionneur \u2014 100 cristaux", achSh1000: "Ma\u00eetre des cristaux \u2014 1000",
+  achCombo: "Roi du combo \u2014 x15", achL1: "\u00c9chauff\u00e9", achCamp: "H\u00e9ros de lumi\u00e8re", achHard: "H\u00e9ros hardcore",
+  achDaily: "H\u00e9ros du jour", achBoss: "Tueur de g\u00e9ant", achFlawless: "Niveau parfait", achSprint: "Sprinteur",
+  builder: "Mes niveaux", exportLv: "Exporter le niveau actuel", playCustom: "Jouer ce niveau",
+  badLevel: "Format de niveau invalide", customDone: "Niveau personnalis\u00e9 termin\u00e9 !",
+  z5: "Profondeurs de lave", trLava: "Profondeurs de lave", bossWarn: "BOSS !", bossHint: "Saute sur le dessus 3 fois !",
+  lv4: "Route de lave", lv5: "Ascension finale",
+  h8: "Balayer vers le bas ou S \u2014 chute rapide."
 };
 I18N.de = {
   tagline: "Eine Reise durch lebendiges Licht", clickToStart: "Klicken zum Starten",
@@ -307,7 +398,22 @@ I18N.de = {
   trAuto: "Auto", trMenu: "Menü-Thema", trCity: "Neonstadt", trCaves: "Kristallhöhlen", trAurora: "Polarlichtgipfel", trStorm: "Sonnensturm", trMeadow: "Wiesenmorgen", trHard: "Hardcore-Drive", trWin: "Sieg",
   level: "Level", checkpoint: "Checkpoint!", levelDone: "Level geschafft!",
   winTitle: "Du hast gewonnen!", winSub: "Kampagne abgeschlossen", playAgain: "Nochmal spielen",
-  lv1: "Erste Schritte", lv2: "Windmühlenhügel", lv3: "Fallenpfad"
+  lv1: "Erste Schritte", lv2: "Windmühlenhügel", lv3: "Fallenpfad",
+  shop: "Laden", shopTitle: "Laden", crystals: "Kristalle",
+  perkShield: "Start-Schild", perkLife: "Reserveleben", perkMagnet: "Start-Magnet",
+  bought: "Gekauft", noCrystals: "Nicht genug Kristalle", skins: "Skins",
+  skClassic: "Klassik", skEmber: "Glut", skIce: "Eis", skToxic: "Toxin", skGold: "Gold", skVoid: "Leere",
+  records: "Rekorde", recordsEmpty: "Noch keine Rekorde",
+  daily: "Tageschallenge", dailyDone: "Heute geschafft!", dailyWin: "Tageschallenge geschafft!",
+  sprint: "Sprint", sprintDone: "Ziel!", sprintNew: "Neue Bestzeit!", bestTime: "Bestzeit",
+  ach: "Erfolge", achFirst: "Erster Lauf", achSh100: "Sammler \u2014 100 Kristalle", achSh1000: "Kristallmeister \u2014 1000",
+  achCombo: "Combo-Meister \u2014 x15", achL1: "Aufgew\u00e4rmt", achCamp: "Lichtheld", achHard: "Hardcore-Held",
+  achDaily: "Held des Tages", achBoss: "Riesent\u00f6ter", achFlawless: "Makelloses Level", achSprint: "Sprinter",
+  builder: "Eigene Level", exportLv: "Aktuelles Level exportieren", playCustom: "Dieses Level spielen",
+  badLevel: "Ung\u00fcltiges Level-Format", customDone: "Eigenes Level geschafft!",
+  z5: "Lavatiefen", trLava: "Lavatiefen", bossWarn: "BOSS!", bossHint: "Spring 3-mal darauf!",
+  lv4: "Feuerstraße", lv5: "Letzter Anstieg",
+  h8: "Nach unten wischen oder S \u2014 Schnellfallen."
 };
 I18N.es = {
   tagline: "Un viaje a través de la luz viva", clickToStart: "Haz clic para empezar",
@@ -332,7 +438,22 @@ I18N.es = {
   trAuto: "Auto", trMenu: "Tema del menú", trCity: "Ciudad Neón", trCaves: "Cavernas de Cristal", trAurora: "Picos de la Aurora", trStorm: "Tormenta Solar", trMeadow: "Mañana de prado", trHard: "Hardcore Drive", trWin: "Victoria",
   level: "Nivel", checkpoint: "¡Punto de control!", levelDone: "¡Nivel completado!",
   winTitle: "¡Has ganado!", winSub: "Campaña completada", playAgain: "Jugar de nuevo",
-  lv1: "Primeros pasos", lv2: "Colinas de molinos", lv3: "Sendero de trampas"
+  lv1: "Primeros pasos", lv2: "Colinas de molinos", lv3: "Sendero de trampas",
+  shop: "Tienda", shopTitle: "Tienda", crystals: "Cristales",
+  perkShield: "Escudo inicial", perkLife: "Vida de reserva", perkMagnet: "Im\u00e1n inicial",
+  bought: "Comprado", noCrystals: "Faltan cristales", skins: "Aspectos",
+  skClassic: "Cl\u00e1sico", skEmber: "Ascua", skIce: "Hielo", skToxic: "T\u00f3xico", skGold: "Oro", skVoid: "Vac\u00edo",
+  records: "R\u00e9cords", recordsEmpty: "A\u00fan sin r\u00e9cords",
+  daily: "Reto diario", dailyDone: "\u00a1Completado hoy!", dailyWin: "\u00a1Reto diario completado!",
+  sprint: "Sprint", sprintDone: "\u00a1Meta!", sprintNew: "\u00a1Nuevo r\u00e9cord!", bestTime: "Mejor tiempo",
+  ach: "Logros", achFirst: "Primera carrera", achSh100: "Coleccionista \u2014 100 cristales", achSh1000: "Maestro de cristales \u2014 1000",
+  achCombo: "Maestro del combo \u2014 x15", achL1: "Calentado", achCamp: "H\u00e9roe de luz", achHard: "H\u00e9roe hardcore",
+  achDaily: "H\u00e9roe diario", achBoss: "Asesino de gigantes", achFlawless: "Nivel perfecto", achSprint: "Velocista",
+  builder: "Mis niveles", exportLv: "Exportar nivel actual", playCustom: "Jugar este nivel",
+  badLevel: "Formato de nivel no v\u00e1lido", customDone: "\u00a1Nivel personalizado completado!",
+  z5: "Profundidades de lava", trLava: "Profundidades de lava", bossWarn: "\u00a1JEFE!", bossHint: "\u00a1Salta encima 3 veces!",
+  lv4: "Camino de lava", lv5: "Ascenso final",
+  h8: "Desliza hacia abajo o S \u2014 ca\u00edda r\u00e1pida."
 };
 I18N.pt = {
   tagline: "Uma jornada pela luz viva", clickToStart: "Clique para começar",
@@ -357,7 +478,22 @@ I18N.pt = {
   trAuto: "Auto", trMenu: "Tema do menu", trCity: "Cidade Neon", trCaves: "Cavernas de Cristal", trAurora: "Picos da Aurora", trStorm: "Tempestade Solar", trMeadow: "Manhã no campo", trHard: "Hardcore Drive", trWin: "Vitória",
   level: "Nível", checkpoint: "Ponto de controle!", levelDone: "Nível concluído!",
   winTitle: "Você venceu!", winSub: "Campanha concluída", playAgain: "Jogar de novo",
-  lv1: "Primeiros passos", lv2: "Colinas dos moinhos", lv3: "Trilha das armadilhas"
+  lv1: "Primeiros passos", lv2: "Colinas dos moinhos", lv3: "Trilha das armadilhas",
+  shop: "Loja", shopTitle: "Loja", crystals: "Cristais",
+  perkShield: "Escudo inicial", perkLife: "Vida extra", perkMagnet: "\u00cdm\u00e3 inicial",
+  bought: "Comprado", noCrystals: "Cristais insuficientes", skins: "Skins",
+  skClassic: "Cl\u00e1ssico", skEmber: "Brasa", skIce: "Gelo", skToxic: "T\u00f3xico", skGold: "Ouro", skVoid: "Vazio",
+  records: "Recordes", recordsEmpty: "Sem recordes ainda",
+  daily: "Desafio di\u00e1rio", dailyDone: "\u00a1Conclu\u00eddo hoje!", dailyWin: "\u00a1Desafio di\u00e1rio conclu\u00eddo!",
+  sprint: "Sprint", sprintDone: "\u00a1Chegada!", sprintNew: "\u00a1Novo recorde!", bestTime: "Melhor tempo",
+  ach: "Conquistas", achFirst: "Primeira corrida", achSh100: "Colecionador \u2014 100 cristais", achSh1000: "Mestre dos cristais \u2014 1000",
+  achCombo: "Mestre do combo \u2014 x15", achL1: "Aquecido", achCamp: "Her\u00f3i da luz", achHard: "Her\u00f3i hardcore",
+  achDaily: "Her\u00f3i do dia", achBoss: "Matador de gigantes", achFlawless: "N\u00edvel perfeito", achSprint: "Velocista",
+  builder: "Meus n\u00edveis", exportLv: "Exportar n\u00edvel atual", playCustom: "Jogar este n\u00edvel",
+  badLevel: "Formato de n\u00edvel inv\u00e1lido", customDone: "\u00a1N\u00edvel personalizado conclu\u00eddo!",
+  z5: "Profundezas de lava", trLava: "Profundezas de lava", bossWarn: "CHEFE!", bossHint: "Pule em cima 3 vezes!",
+  lv4: "Estrada de lava", lv5: "Subida final",
+  h8: "Deslize para baixo ou S \u2014 queda r\u00e1pida."
 };
 I18N.zh = {
   tagline: "穿越流光的旅程", clickToStart: "点击开始",
@@ -382,7 +518,22 @@ I18N.zh = {
   trAuto: "自动", trMenu: "菜单主题", trCity: "霓虹之城", trCaves: "水晶洞窟", trAurora: "极光山峰", trStorm: "太阳风暴", trMeadow: "草地清晨", trHard: "硬核驱动", trWin: "胜利",
   level: "关卡", checkpoint: "检查点！", levelDone: "关卡完成！",
   winTitle: "你胜利了！", winSub: "战役完成", playAgain: "再玩一次",
-  lv1: "初出茅庐", lv2: "风车丘陵", lv3: "陷阱小径"
+  lv1: "初出茅庐", lv2: "风车丘陵", lv3: "陷阱小径",
+  shop: "\u5546\u5e97", shopTitle: "\u5546\u5e97", crystals: "\u6c34\u6676",
+  perkShield: "\u5f00\u5c40\u62a4\u76fe", perkLife: "\u5907\u7528\u751f\u547d", perkMagnet: "\u5f00\u5c40\u78c1\u94c1",
+  bought: "\u5df2\u8d2d\u4e70", noCrystals: "\u6c34\u6676\u4e0d\u8db3", skins: "\u76ae\u80a4",
+  skClassic: "\u7ecf\u5178", skEmber: "\u706b\u82b1", skIce: "\u51b0", skToxic: "\u6bd2\u6db2", skGold: "\u9ec4\u91d1", skVoid: "\u865a\u7a7a",
+  records: "\u7eaa\u5f55", recordsEmpty: "\u6682\u65e0\u7eaa\u5f55",
+  daily: "\u6bcf\u65e5\u6311\u6218", dailyDone: "\u4eca\u65e5\u5df2\u5b8c\u6210!", dailyWin: "\u6bcf\u65e5\u6311\u6218\u5b8c\u6210!",
+  sprint: "\u51b2\u523a", sprintDone: "\u51b2\u523a\u5b8c\u6210!", sprintNew: "\u65b0\u7eaa\u5f55!", bestTime: "\u6700\u4f73\u65f6\u95f4",
+  ach: "\u6210\u5c31", achFirst: "\u9996\u6b21\u5954\u8dd1", achSh100: "\u6536\u85cf\u5bb6\u2014100\u6c34\u6676", achSh1000: "\u6c34\u6676\u5927\u5e08\u20141000",
+  achCombo: "\u8fde\u51fb\u5927\u5e08\u2014x15", achL1: "\u70ed\u8eab\u5b8c\u6bd5", achCamp: "\u5149\u660e\u82f1\u96c4", achHard: "\u786c\u6838\u82f1\u96c4",
+  achDaily: "\u6bcf\u65e5\u82f1\u96c4", achBoss: "\u5c60\u5de8\u8005", achFlawless: "\u5b8c\u7f8e\u5173\u5361", achSprint: "\u77ed\u8dd1\u5065\u5c06",
+  builder: "\u6211\u7684\u5173\u5361", exportLv: "\u5bfc\u51fa\u5f53\u524d\u5173\u5361", playCustom: "\u73a9\u8fd9\u4e2a\u5173\u5361",
+  badLevel: "\u5173\u5361\u683c\u5f0f\u9519\u8bef", customDone: "\u81ea\u5b9a\u4e49\u5173\u5361\u5b8c\u6210!",
+  z5: "\u7194\u5ca9\u6df1\u5904", trLava: "\u7194\u5ca9\u6df1\u5904", bossWarn: "BOSS\uff01", bossHint: "\u4ece\u4e0a\u65b9\u8df3\u4e0a\u53bb3\u6b21\uff01",
+  lv4: "\u7194\u5ca9\u4e4b\u8def", lv5: "\u6700\u7ec8\u767b\u9876",
+  h8: "\u4e0b\u6ed1\u6216 S \u2014 \u5feb\u901f\u4e0b\u843d\u3002"
 };
 I18N.ar = {
   tagline: "رحلة عبر الضوء الحي", clickToStart: "انقر للبدء",
@@ -407,7 +558,22 @@ I18N.ar = {
   trAuto: "تلقائي", trMenu: "لحن القائمة", trCity: "مدينة النيون", trCaves: "كهوف الكريستال", trAurora: "قمم الشفق", trStorm: "العاصفة الشمسية", trMeadow: "صباح المرج", trHard: "إيقاع قاتل", trWin: "انتصار",
   level: "المستوى", checkpoint: "نقطة حفظ!", levelDone: "اكتمل المستوى!",
   winTitle: "لقد فزت!", winSub: "اكتملت الحملة", playAgain: "العب مجددًا",
-  lv1: "الخطوات الأولى", lv2: "تلال الطواحين", lv3: "طريق الفخاخ"
+  lv1: "الخطوات الأولى", lv2: "تلال الطواحين", lv3: "طريق الفخاخ",
+  shop: "\u0645\u062a\u062c\u0631", shopTitle: "\u0645\u062a\u062c\u0631", crystals: "\u0628\u0644\u0648\u0631\u0627\u062a",
+  perkShield: "\u062f\u0631\u0639 \u0627\u0644\u0628\u062f\u0627\u064a\u0629", perkLife: "\u062d\u064a\u0627\u0629 \u0627\u062d\u062a\u064a\u0627\u0637\u064a\u0629", perkMagnet: "\u0645\u063a\u0646\u0627\u0637\u064a\u0633 \u0627\u0644\u0628\u062f\u0627\u064a\u0629",
+  bought: "\u062a\u0645 \u0627\u0644\u0634\u0631\u0627\u0621", noCrystals: "\u0628\u0644\u0648\u0631\u0627\u062a \u063a\u064a\u0631 \u0643\u0627\u0641\u064a\u0629", skins: "\u0627\u0644\u0623\u0634\u0643\u0627\u0644",
+  skClassic: "\u0643\u0644\u0627\u0633\u064a\u0643\u064a", skEmber: "\u062c\u0645\u0631\u0629", skIce: "\u062c\u0644\u064a\u062f", skToxic: "\u0633\u0627\u0645", skGold: "\u0630\u0647\u0628\u064a", skVoid: "\u0627\u0644\u0641\u0631\u0627\u063a",
+  records: "\u0627\u0644\u0633\u062c\u0644\u0627\u062a", recordsEmpty: "\u0644\u0627 \u0633\u062c\u0644\u0627\u062a \u0628\u0639\u062f",
+  daily: "\u062a\u062d\u062f\u064a \u0627\u0644\u064a\u0648\u0645", dailyDone: "\u0623\u0643\u0645\u0644\u062a\u0647 \u0627\u0644\u064a\u0648\u0645!", dailyWin: "\u0627\u0643\u062a\u0645\u0644 \u062a\u062d\u062f\u064a \u0627\u0644\u064a\u0648\u0645!",
+  sprint: "\u0639\u062f\u0648 \u0627\u0644\u0633\u0631\u0639\u0629", sprintDone: "\u0627\u0644\u062e\u0637!", sprintNew: "\u0631\u0642\u0645 \u0642\u064a\u0627\u0633\u064a \u062c\u062f\u064a\u062f!", bestTime: "\u0623\u0641\u0636\u0644 \u0648\u0642\u062a",
+  ach: "\u0627\u0644\u0625\u0646\u062c\u0627\u0632\u0627\u062a", achFirst: "\u0623\u0648\u0644 \u062c\u0648\u0644\u0629", achSh100: "\u062c\u0627\u0645\u0639 \u2014 100 \u0628\u0644\u0648\u0631\u0629", achSh1000: "\u0633\u064a\u062f \u0627\u0644\u0628\u0644\u0648\u0631\u0627\u062a \u2014 1000",
+  achCombo: "\u0633\u064a\u062f \u0627\u0644\u0643\u0648\u0645\u0628\u0648 \u2014 x15", achL1: "\u062a\u0633\u062e\u064a\u0646", achCamp: "\u0628\u0637\u0644 \u0627\u0644\u0646\u0648\u0631", achHard: "\u0628\u0637\u0644 \u0635\u0639\u0628",
+  achDaily: "\u0628\u0637\u0644 \u0627\u0644\u064a\u0648\u0645", achBoss: "\u0642\u0627\u062a\u0644 \u0627\u0644\u0639\u0645\u0627\u0644\u0642\u0629", achFlawless: "\u0645\u0633\u062a\u0648\u0649 \u0628\u0644\u0627 \u0623\u062e\u0637\u0627\u0621", achSprint: "\u0639\u062f\u0627\u0621",
+  builder: "\u0645\u0633\u062a\u0648\u064a\u0627\u062a\u064a", exportLv: "\u062a\u0635\u062f\u064a\u0631 \u0627\u0644\u0645\u0633\u062a\u0648\u0649", playCustom: "\u0627\u0644\u0639\u0628 \u0647\u0630\u0627 \u0627\u0644\u0645\u0633\u062a\u0648\u0649",
+  badLevel: "\u062a\u0646\u0633\u064a\u0642 \u063a\u064a\u0631 \u0635\u0627\u0644\u062d", customDone: "\u0627\u0643\u062a\u0645\u0644 \u0627\u0644\u0645\u0633\u062a\u0648\u0649!",
+  z5: "\u0623\u0639\u0645\u0627\u0642 \u0627\u0644\u062d\u0645\u0645", trLava: "\u0623\u0639\u0645\u0627\u0642 \u0627\u0644\u062d\u0645\u0645", bossWarn: "\u0632\u0639\u064a\u0645!", bossHint: "\u0627\u0642\u0641\u0632 \u0641\u0648\u0642\u0647 3 \u0645\u0631\u0627\u062a!",
+  lv4: "\u0637\u0631\u064a\u0642 \u0627\u0644\u062d\u0645\u0645", lv5: "\u0627\u0644\u0635\u0639\u0648\u062f \u0627\u0644\u0623\u062e\u064a\u0631",
+  h8: "\u0627\u0633\u062d\u0628 \u0644\u0623\u0633\u0641\u0644 \u0623\u0648 S \u2014 \u0633\u0642\u0648\u0637 \u0633\u0631\u064a\u0639."
 };
 I18N.uk = {
   tagline: "Подорож крізь живе світло", clickToStart: "Натисніть, щоб почати",
@@ -432,7 +598,22 @@ I18N.uk = {
   trAuto: "Авто", trMenu: "Тема меню", trCity: "Неонове місто", trCaves: "Кришталеві печери", trAurora: "Вершини сяйва", trStorm: "Сонячна буря", trMeadow: "Ранок на луці", trHard: "Хардкор-драйв", trWin: "Перемога",
   level: "Рівень", checkpoint: "Чекпоїнт!", levelDone: "Рівень пройдено!",
   winTitle: "Ви перемогли!", winSub: "Кампанію пройдено", playAgain: "Зіграти ще",
-  lv1: "Перші кроки", lv2: "Вітряні пагорби", lv3: "Стежка пасток"
+  lv1: "Перші кроки", lv2: "Вітряні пагорби", lv3: "Стежка пасток",
+  shop: "\u041a\u0440\u0430\u043c\u043d\u0438\u0446\u044f", shopTitle: "\u041a\u0440\u0430\u043c\u043d\u0438\u0446\u044f", crystals: "\u041a\u0440\u0438\u0441\u0442\u0430\u043b\u0438",
+  perkShield: "\u0429\u0438\u0442 \u043d\u0430 \u0441\u0442\u0430\u0440\u0442\u0456", perkLife: "\u0417\u0430\u043f\u0430\u0441\u043d\u0435 \u0436\u0438\u0442\u0442\u044f", perkMagnet: "\u041c\u0430\u0433\u043d\u0456\u0442 \u043d\u0430 \u0441\u0442\u0430\u0440\u0442\u0456",
+  bought: "\u041a\u0443\u043f\u043b\u0435\u043d\u043e", noCrystals: "\u041d\u0435 \u0432\u0438\u0441\u0442\u0430\u0447\u0430\u0454 \u043a\u0440\u0438\u0441\u0442\u0430\u043b\u0456\u0432", skins: "\u0421\u043a\u0456\u043d\u0438",
+  skClassic: "\u041a\u043b\u0430\u0441\u0438\u043a\u0430", skEmber: "\u0406\u0441\u043a\u0440\u0430", skIce: "\u041b\u0456\u0434", skToxic: "\u0422\u043e\u043a\u0441\u0438\u043d", skGold: "\u0417\u043e\u043b\u043e\u0442\u043e", skVoid: "\u041f\u0443\u0441\u0442\u043e\u0442\u0430",
+  records: "\u0420\u0435\u043a\u043e\u0440\u0434\u0438", recordsEmpty: "\u041f\u043e\u043a\u0438 \u043d\u0435\u043c\u0430\u0454 \u0440\u0435\u043a\u043e\u0440\u0434\u0456\u0432",
+  daily: "\u0412\u0438\u043a\u043b\u0438\u043a \u0434\u043d\u044f", dailyDone: "\u0412\u0438\u043a\u043e\u043d\u0430\u043d\u043e \u0441\u044c\u043e\u0433\u043e\u0434\u043d\u0456!", dailyWin: "\u0412\u0438\u043a\u043b\u0438\u043a \u0434\u043d\u044f \u043f\u0440\u043e\u0439\u0434\u0435\u043d\u043e!",
+  sprint: "\u0421\u043f\u0440\u0438\u043d\u0442", sprintDone: "\u0424\u0456\u043d\u0456\u0448!", sprintNew: "\u041d\u043e\u0432\u0438\u0439 \u0440\u0435\u043a\u043e\u0440\u0434 \u0447\u0430\u0441\u0443!", bestTime: "\u041d\u0430\u0439\u043a\u0440\u0430\u0449\u0438\u0439 \u0447\u0430\u0441",
+  ach: "\u041d\u0430\u0433\u043e\u0440\u043e\u0434\u0438", achFirst: "\u041f\u0435\u0440\u0448\u0438\u0439 \u0437\u0430\u0431\u0456\u0433", achSh100: "\u041a\u043e\u043b\u0435\u043a\u0446\u0456\u043e\u043d\u0435\u0440 \u2014 100 \u043a\u0440\u0438\u0441\u0442\u0430\u043b\u0456\u0432", achSh1000: "\u041c\u0430\u0439\u0441\u0442\u0435\u0440 \u043a\u0440\u0438\u0441\u0442\u0430\u043b\u0456\u0432 \u2014 1000",
+  achCombo: "\u041c\u0430\u0439\u0441\u0442\u0435\u0440 \u043a\u043e\u043c\u0431\u043e \u2014 x15", achL1: "\u0420\u043e\u0437\u0433\u0456\u0432", achCamp: "\u0413\u0435\u0440\u043e\u0439 \u0441\u0432\u0456\u0442\u043b\u0430", achHard: "\u0425\u0430\u0440\u0434\u043a\u043e\u0440-\u0433\u0435\u0440\u043e\u0439",
+  achDaily: "\u0413\u0435\u0440\u043e\u0439 \u0434\u043d\u044f", achBoss: "\u0412\u0431\u0438\u0432\u0446\u044f \u0432\u0435\u043b\u0435\u0442\u0435\u043d\u044c", achFlawless: "\u0411\u0435\u0437\u0434\u043e\u0433\u0430\u043d\u043d\u0438\u0439 \u0440\u0456\u0432\u0435\u043d\u044c", achSprint: "\u0421\u043f\u0440\u0438\u043d\u0442\u0435\u0440",
+  builder: "\u0421\u0432\u0456\u0457 \u0440\u0456\u0432\u043d\u0456", exportLv: "\u0415\u043a\u0441\u043f\u043e\u0440\u0442 \u043f\u043e\u0442\u043e\u0447\u043d\u043e\u0433\u043e \u0440\u0456\u0432\u043d\u044f", playCustom: "\u0413\u0440\u0430\u0442\u0438 \u0446\u0435\u0439 \u0440\u0456\u0432\u0435\u043d\u044c",
+  badLevel: "\u041d\u0435\u043a\u043e\u0440\u0435\u043a\u0442\u043d\u0438\u0439 \u0444\u043e\u0440\u043c\u0430\u0442 \u0440\u0456\u0432\u043d\u044f", customDone: "\u0421\u0432\u0456\u0439 \u0440\u0456\u0432\u0435\u043d\u044c \u043f\u0440\u043e\u0439\u0434\u0435\u043d\u043e!",
+  z5: "\u041b\u0430\u0432\u043e\u0432\u0456 \u0431\u0435\u0437\u043e\u0434\u043d\u0456", trLava: "\u041b\u0430\u0432\u043e\u0432\u0456 \u0431\u0435\u0437\u043e\u0434\u043d\u0456", bossWarn: "\u0411\u041e\u0421!", bossHint: "\u0421\u0442\u0440\u0438\u0431\u0430\u0439 \u0437\u0432\u0435\u0440\u0445\u0443 3 \u0440\u0430\u0437\u0438!",
+  lv4: "\u0412\u043e\u0433\u043d\u044f\u043d\u0430 \u0434\u043e\u0440\u043e\u0433\u0430", lv5: "\u0424\u0456\u043d\u0430\u043b\u044c\u043d\u0438\u0439 \u043f\u0456\u0434\u0439\u043e\u043c",
+  h8: "\u0421\u0432\u0430\u0439\u043f \u0432\u043d\u0438\u0437 \u0430\u0431\u043e S \u2014 \u0448\u0432\u0438\u0434\u043a\u0435 \u043f\u0430\u0434\u0456\u043d\u043d\u044f."
 };
 I18N.ru = {
   tagline: "Путешествие сквозь живой свет", clickToStart: "Нажмите, чтобы начать",
@@ -457,7 +638,22 @@ I18N.ru = {
   trAuto: "Авто", trMenu: "Тема меню", trCity: "Неоновый город", trCaves: "Хрустальные пещеры", trAurora: "Пики сияния", trStorm: "Солнечная буря", trMeadow: "Луговое утро", trHard: "Хардкор-драйв", trWin: "Победа",
   level: "Уровень", checkpoint: "Чекпоинт!", levelDone: "Уровень пройден!",
   winTitle: "Вы победили!", winSub: "Кампания пройдена", playAgain: "Сыграть ещё",
-  lv1: "Первые шаги", lv2: "Ветряные холмы", lv3: "Тропа ловушек"
+  lv1: "Первые шаги", lv2: "Ветряные холмы", lv3: "Тропа ловушек",
+  shop: "\u041c\u0430\u0433\u0430\u0437\u0438\u043d", shopTitle: "\u041c\u0430\u0433\u0430\u0437\u0438\u043d", crystals: "\u041a\u0440\u0438\u0441\u0442\u0430\u043b\u043b\u044b",
+  perkShield: "\u0429\u0438\u0442 \u043d\u0430 \u0441\u0442\u0430\u0440\u0442\u0435", perkLife: "\u0417\u0430\u043f\u0430\u0441\u043d\u0430\u044f \u0436\u0438\u0437\u043d\u044c", perkMagnet: "\u041c\u0430\u0433\u043d\u0438\u0442 \u043d\u0430 \u0441\u0442\u0430\u0440\u0442\u0435",
+  bought: "\u041a\u0443\u043f\u043b\u0435\u043d\u043e", noCrystals: "\u041d\u0435 \u0445\u0432\u0430\u0442\u0430\u0435\u0442 \u043a\u0440\u0438\u0441\u0442\u0430\u043b\u043b\u043e\u0432", skins: "\u0421\u043a\u0438\u043d\u044b",
+  skClassic: "\u041a\u043b\u0430\u0441\u0441\u0438\u043a\u0430", skEmber: "\u0418\u0441\u043a\u0440\u0430", skIce: "\u041b\u0451\u0434", skToxic: "\u0422\u043e\u043a\u0441\u0438\u043d", skGold: "\u0417\u043e\u043b\u043e\u0442\u043e", skVoid: "\u0411\u0435\u0437\u0434\u043d\u0430",
+  records: "\u0420\u0435\u043a\u043e\u0440\u0434\u044b", recordsEmpty: "\u041f\u043e\u043a\u0430 \u043d\u0435\u0442 \u0440\u0435\u043a\u043e\u0440\u0434\u043e\u0432",
+  daily: "\u0412\u044b\u0437\u043e\u0432 \u0434\u043d\u044f", dailyDone: "\u041f\u0440\u043e\u0439\u0434\u0435\u043d\u043e \u0441\u0435\u0433\u043e\u0434\u043d\u044f!", dailyWin: "\u0412\u044b\u0437\u043e\u0432 \u0434\u043d\u044f \u043f\u0440\u043e\u0439\u0434\u0435\u043d!",
+  sprint: "\u0421\u043f\u0440\u0438\u043d\u0442", sprintDone: "\u0424\u0438\u043d\u0438\u0448!", sprintNew: "\u041d\u043e\u0432\u044b\u0439 \u0440\u0435\u043a\u043e\u0440\u0434 \u0432\u0440\u0435\u043c\u0435\u043d\u0438!", bestTime: "\u041b\u0443\u0447\u0448\u0435\u0435 \u0432\u0440\u0435\u043c\u044f",
+  ach: "\u041d\u0430\u0433\u0440\u0430\u0434\u044b", achFirst: "\u041f\u0435\u0440\u0432\u044b\u0439 \u0437\u0430\u0431\u0435\u0433", achSh100: "\u041a\u043e\u043b\u043b\u0435\u043a\u0446\u0438\u043e\u043d\u0435\u0440 \u2014 100 \u043a\u0440\u0438\u0441\u0442\u0430\u043b\u043b\u043e\u0432", achSh1000: "\u041c\u0430\u0441\u0442\u0435\u0440 \u043a\u0440\u0438\u0441\u0442\u0430\u043b\u043b\u043e\u0432 \u2014 1000",
+  achCombo: "\u041c\u0430\u0441\u0442\u0435\u0440 \u043a\u043e\u043c\u0431\u043e \u2014 x15", achL1: "\u0420\u0430\u0437\u043e\u0433\u0440\u0435\u0432", achCamp: "\u0413\u0435\u0440\u043e\u0439 \u0441\u0432\u0435\u0442\u0430", achHard: "\u0425\u0430\u0440\u0434\u043a\u043e\u0440-\u0433\u0435\u0440\u043e\u0439",
+  achDaily: "\u0413\u0435\u0440\u043e\u0439 \u0434\u043d\u044f", achBoss: "\u0423\u0431\u0438\u0439\u0446\u0430 \u0432\u0435\u043b\u0438\u043a\u0430\u043d\u043e\u0432", achFlawless: "\u0411\u0435\u0437\u0443\u043f\u0440\u0435\u0447\u043d\u044b\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c", achSprint: "\u0421\u043f\u0440\u0438\u043d\u0442\u0435\u0440",
+  builder: "\u0421\u0432\u043e\u0438 \u0443\u0440\u043e\u0432\u043d\u0438", exportLv: "\u042d\u043a\u0441\u043f\u043e\u0440\u0442 \u0442\u0435\u043a\u0443\u0449\u0435\u0433\u043e \u0443\u0440\u043e\u0432\u043d\u044f", playCustom: "\u0418\u0433\u0440\u0430\u0442\u044c \u044d\u0442\u043e\u0442 \u0443\u0440\u043e\u0432\u0435\u043d\u044c",
+  badLevel: "\u041d\u0435\u0432\u0435\u0440\u043d\u044b\u0439 \u0444\u043e\u0440\u043c\u0430\u0442 \u0443\u0440\u043e\u0432\u043d\u044f", customDone: "\u0421\u0432\u043e\u0439 \u0443\u0440\u043e\u0432\u0435\u043d\u044c \u043f\u0440\u043e\u0439\u0434\u0435\u043d!",
+  z5: "\u041b\u0430\u0432\u043e\u0432\u044b\u0435 \u0431\u0435\u0437\u0434\u043d\u044b", trLava: "\u041b\u0430\u0432\u043e\u0432\u044b\u0435 \u0431\u0435\u0437\u0434\u043d\u044b", bossWarn: "\u0411\u041e\u0421\u0421!", bossHint: "\u041f\u0440\u044b\u0433\u0430\u0439 \u0441\u0432\u0435\u0440\u0445\u0443 3 \u0440\u0430\u0437\u0430!",
+  lv4: "\u041e\u0433\u043d\u0435\u043d\u043d\u0430\u044f \u0434\u043e\u0440\u043e\u0433\u0430", lv5: "\u0424\u0438\u043d\u0430\u043b\u044c\u043d\u044b\u0439 \u043f\u043e\u0434\u044a\u0451\u043c",
+  h8: "\u0421\u0432\u0430\u0439\u043f \u0432\u043d\u0438\u0437 \u0438\u043b\u0438 S \u2014 \u0431\u044b\u0441\u0442\u0440\u043e\u0435 \u043f\u0430\u0434\u0435\u043d\u0438\u0435."
 };
 let LANG = "en";
 function t(k) { return (I18N[LANG] && I18N[LANG][k]) || I18N.en[k] || k; }
@@ -589,7 +785,8 @@ const AE = (() => {
     over:   { bpm: 64,  root: 57, sc: "min", prog: [[0,"m9"],[-4,"M7"],[-7,"M7"],[-5,"m7"]], padCut: 800, padVol: 0.05, bass: "long", arp: "", bells: 0.2, kick: "", hat: "", snare: [], lead: 0, seed: 7 },
     meadow: { bpm: 92,  root: 60, sc: "maj", prog: [[0,"M7"],[5,"M9"],[9,"m7"],[7,"M"]], padCut: 2000, padVol: 0.045, bass: "8", arp: "8", arpT: "triangle", bells: 0.6, kick: "half", hat: "shk", snare: [8], snT: "clap", lead: 0.35, seed: 29 },
     hard:   { bpm: 142, root: 50, sc: "phr", prog: [[0,"m"],[1,"M"],[0,"m"],[-2,"M"]], padCut: 2400, padVol: 0.032, bass: "16", arp: "16", arpT: "sawtooth", bells: 0, kick: "four", hat: "16", snare: [4,12], snT: "snare", lead: 0.6, seed: 67 },
-    win:    { bpm: 100, root: 60, sc: "maj", prog: [[0,"M"],[5,"M9"],[7,"M"],[0,"a9"]], padCut: 2600, padVol: 0.05, bass: "8", arp: "16", arpT: "triangle", bells: 0.7, kick: "half", hat: "8", snare: [8], snT: "clap", lead: 0.5, seed: 41 }
+    win:    { bpm: 100, root: 60, sc: "maj", prog: [[0,"M"],[5,"M9"],[7,"M"],[0,"a9"]], padCut: 2600, padVol: 0.05, bass: "8", arp: "16", arpT: "triangle", bells: 0.7, kick: "half", hat: "8", snare: [8], snT: "clap", lead: 0.5, seed: 41 },
+    lava:   { bpm: 118, root: 55, sc: "phr", prog: [[0,"m"],[-2,"M"],[3,"m7"],[-4,"M"]], padCut: 2000, padVol: 0.038, bass: "16", arp: "16", arpT: "sawtooth", bells: 0, kick: "four", hat: "16", snare: [4,12], snT: "snare", lead: 0.55, seed: 83 }
   };
   const h = n => { const x = Math.sin(n * 127.1 + 311.7) * 43758.5453; return x - Math.floor(x); };
   function tick() {
@@ -706,7 +903,8 @@ const BIOMES = [
   { key: "z1", track: "city",   type: "city",   sky: ["#090221","#2b0a4d","#7a1d6e","#ff6a5c"], acc: "#ff4fd8", acc2: "#29e7ff", body: ["#1a0a35","#07020f"], far: "#3a0f5e", near: "#14062b", pc: "#7df9ff", amb: ["#ff7ae0","#7df9ff"] },
   { key: "z2", track: "caves",  type: "caves",  sky: ["#01070c","#032029","#06424a","#0d6363"], acc: "#3ef2d0", acc2: "#a78bff", body: ["#0b2c36","#02090c"], far: "#0b3442", near: "#062029", pc: "#b8fff1", amb: ["#7dfde0","#c4b5ff"] },
   { key: "z3", track: "aurora", type: "aurora", sky: ["#020414","#071540","#0d3163","#1f6a86"], acc: "#9fffe0", acc2: "#7cc4ff", body: ["#1d4472","#060e22"], far: "#1a3766", near: "#0d1f42", pc: "#e0fff4", amb: ["#ffffff","#cfe8ff"] },
-  { key: "z4", track: "storm",  type: "storm",  sky: ["#100103","#3a0806","#8a1f08","#ff7a1a"], acc: "#ffb02e", acc2: "#ff4b2b", body: ["#24110c","#070202"], far: "#2e0a06", near: "#1a0503", pc: "#fff1a8", amb: ["#ffb347","#ff6a2b"] }
+  { key: "z4", track: "storm",  type: "storm",  sky: ["#100103","#3a0806","#8a1f08","#ff7a1a"], acc: "#ffb02e", acc2: "#ff4b2b", body: ["#24110c","#070202"], far: "#2e0a06", near: "#1a0503", pc: "#fff1a8", amb: ["#ffb347","#ff6a2b"] },
+  { key: "z5", track: "lava",   type: "lava",   sky: ["#0a0103","#2b0407","#6e0d0a","#c92f12"], acc: "#ff6a3d", acc2: "#ffd23f", body: ["#2b0a0a","#0a0202"], far: "#3d0d0a", near: "#1c0403", pc: "#ffe0b0", amb: ["#ff9e3d","#ffd23f"] }
 ];
 const G = {
   mode: "menu", VW: 1280, scale: 1, hq: true, shakeOn: true,
@@ -1055,9 +1253,357 @@ const LEVELS = [
       ["щит", 26776, 460],
     ],
     cps: [5426, 10543, 14943, 19670, 24525],
-    finish: 28099
+    finish: 28099,
+    boss: 27799
+  },
+  {
+    name: "lv4", biome: 4, track: "lava", speed: 390,
+    plat: [
+      [-900, 520, 2300],
+      [1704, 568, 513],
+      [2446, 575, 425, 1],
+      [3078, 514, 437],
+      [3740, 555, 420],
+      [4437, 580, 557],
+      [5297, 580, 576],
+      [6164, 576, 398],
+      [6920, 514, 420],
+      [7690, 493, 404],
+      [8321, 477, 540, 1],
+      [9159, 509, 404],
+      [9811, 452, 428],
+      [10502, 374, 578],
+      [11489, 395, 554],
+      [12432, 482, 562],
+      [13361, 476, 587],
+      [14268, 502, 541],
+      [15147, 471, 418],
+      [15968, 556, 568],
+      [16893, 477, 589],
+      [17684, 390, 437],
+      [18475, 442, 545],
+      [19311, 402, 524],
+      [20127, 360, 467],
+      [20949, 360, 563],
+      [21906, 443, 392],
+      [22529, 398, 416],
+      [23333, 360, 593],
+      [24201, 435, 615],
+      [25035, 456, 381],
+      [25792, 526, 514],
+      [26725, 451, 595],
+      [27587, 492, 396],
+      [28384, 486, 533],
+      [29241, 486, 3600],
+    ],
+    haz: [
+      ["ловец", 1955],
+      ["мельница", 4655],
+      ["школьник", 5530],
+      ["ловец", 10815],
+      ["школьник", 11760],
+      ["ловец", 12694],
+      ["школьник", 13704],
+      ["ловец", 14573],
+      ["мельница", 16232],
+      ["ловец", 17228],
+      ["ловец", 18802],
+      ["бабушка", 19521],
+      ["мельница", 21246],
+      ["мельница", 23589],
+      ["школьник", 24589],
+      ["бабушка", 27062],
+      ["школьник", 28626],
+      ["бабочка", 1552, 429],
+      ["бабочка", 2331, 472],
+      ["бабочка", 3627, 392],
+      ["бабочка", 4298, 409],
+      ["бабочка", 5145, 482],
+      ["бабочка", 6018, 434],
+      ["бабочка", 6741, 381],
+      ["бабочка", 7515, 399],
+      ["бабочка", 8207, 350],
+      ["бабочка", 10370, 266],
+      ["бабочка", 11284, 234],
+      ["бабочка", 12237, 293],
+      ["бабочка", 13177, 382],
+      ["бабочка", 14108, 379],
+      ["бабочка", 16714, 360],
+      ["бабочка", 19165, 288],
+      ["бабочка", 20771, 253],
+      ["бабочка", 22413, 259],
+      ["бабочка", 23139, 219],
+      ["бабочка", 24063, 210],
+      ["бабочка", 25604, 355],
+      ["бабочка", 26515, 303],
+      ["бабочка", 28183, 346],
+    ],
+    shards: [
+      ["дуга", 1370, 480, 7],
+      ["дуга", 2187, 528, 7],
+      ["дуга", 2841, 535, 7],
+      ["дуга", 3485, 474, 7],
+      ["дуга", 4130, 515, 7],
+      ["дуга", 4964, 540, 7],
+      ["дуга", 5843, 540, 7],
+      ["дуга", 6532, 536, 7],
+      ["дуга", 7310, 474, 7],
+      ["дуга", 8064, 453, 7],
+      ["ряд", 8461, 396, 4],
+      ["дуга", 8831, 437, 7],
+      ["дуга", 9533, 469, 7],
+      ["дуга", 10209, 412, 7],
+      ["дуга", 11050, 334, 7],
+      ["дуга", 12013, 355, 7],
+      ["дуга", 12964, 442, 7],
+      ["дуга", 13918, 436, 7],
+      ["дуга", 14779, 462, 7],
+      ["дуга", 15535, 431, 7],
+      ["дуга", 16506, 516, 7],
+      ["дуга", 17452, 437, 7],
+      ["дуга", 18091, 350, 7],
+      ["дуга", 18990, 402, 7],
+      ["дуга", 19805, 362, 7],
+      ["дуга", 20564, 320, 7],
+      ["дуга", 21482, 320, 7],
+      ["дуга", 22268, 403, 7],
+      ["дуга", 22915, 358, 7],
+      ["дуга", 23896, 320, 7],
+      ["дуга", 24786, 395, 7],
+      ["дуга", 25386, 416, 7],
+      ["ряд", 25932, 418, 4],
+      ["дуга", 26276, 486, 7],
+      ["дуга", 27290, 411, 7],
+      ["дуга", 27953, 452, 7],
+      ["дуга", 28887, 446, 7],
+      ["ряд", 29381, 400, 10],
+    ],
+    powers: [
+      ["щит", 3374, 404],
+      ["магнит", 7076, 404],
+      ["ускорение", 11609, 285],
+      ["щит", 15273, 361],
+      ["жизнь", 20249, 250],
+      ["магнит", 25223, 346],
+      ["ускорение", 29581, 376],
+    ],
+    cps: [4687, 9409, 13609, 18725, 23583, 27783],
+    boss: 30041,
+    finish: 31241
+  },
+  {
+    name: "lv5", biome: 2, track: "hard", speed: 400,
+    plat: [
+      [-900, 520, 2300],
+      [1663, 468, 410],
+      [2390, 398, 575],
+      [3282, 398, 382],
+      [4073, 446, 480],
+      [4921, 437, 463],
+      [5733, 508, 496, 1],
+      [6534, 477, 370],
+      [7147, 505, 506],
+      [7906, 474, 456, 1],
+      [8766, 493, 551],
+      [9752, 508, 412, 1],
+      [10488, 420, 572],
+      [11405, 413, 439],
+      [12135, 442, 421, 1],
+      [12838, 431, 416],
+      [13606, 418, 413],
+      [14437, 434, 543],
+      [15369, 371, 514],
+      [16291, 360, 588],
+      [17298, 360, 538],
+      [18145, 360, 392],
+      [18892, 394, 487, 1],
+      [19686, 394, 500, 1],
+      [20483, 447, 460],
+      [21334, 519, 404],
+      [22038, 580, 564],
+      [22932, 580, 573],
+      [23835, 580, 503, 1],
+      [24668, 580, 542],
+      [25533, 580, 480],
+      [26388, 558, 463],
+      [27144, 531, 528, 1],
+      [27965, 580, 534],
+      [28887, 580, 525, 1],
+      [29664, 580, 3600],
+    ],
+    haz: [
+      ["ловец", 2636],
+      ["мельница", 4288],
+      ["ловец", 5147],
+      ["мельница", 7450],
+      ["школьник", 9074],
+      ["мельница", 10757],
+      ["ловец", 14746],
+      ["ловец", 15578],
+      ["школьник", 16602],
+      ["бабушка", 17635],
+      ["школьник", 20729],
+      ["мельница", 22258],
+      ["мельница", 23135],
+      ["ловец", 25006],
+      ["ловец", 25802],
+      ["мельница", 26648],
+      ["бабушка", 28175],
+      ["бабочка", 1531, 367],
+      ["бабочка", 3868, 250],
+      ["бабочка", 5558, 346],
+      ["бабочка", 6381, 344],
+      ["бабочка", 7025, 337],
+      ["бабочка", 7779, 333],
+      ["бабочка", 8564, 382],
+      ["бабочка", 9534, 377],
+      ["бабочка", 11232, 319],
+      ["бабочка", 11989, 271],
+      ["бабочка", 12697, 305],
+      ["бабочка", 13430, 309],
+      ["бабочка", 16087, 212],
+      ["бабочка", 18714, 224],
+      ["бабочка", 19532, 293],
+      ["бабочка", 20334, 283],
+      ["бабочка", 21138, 335],
+      ["бабочка", 21888, 380],
+      ["бабочка", 22767, 474],
+      ["бабочка", 24503, 444],
+      ["бабочка", 25371, 447],
+      ["бабочка", 26200, 465],
+      ["бабочка", 26997, 402],
+      ["бабочка", 28693, 461],
+    ],
+    shards: [
+      ["дуга", 1370, 480, 7],
+      ["дуга", 2043, 428, 7],
+      ["дуга", 2935, 358, 7],
+      ["дуга", 3634, 358, 7],
+      ["дуга", 4523, 406, 7],
+      ["дуга", 5354, 397, 7],
+      ["дуга", 6199, 468, 7],
+      ["дуга", 6874, 437, 7],
+      ["дуга", 7623, 465, 7],
+      ["дуга", 8332, 434, 7],
+      ["дуга", 9287, 453, 7],
+      ["дуга", 10134, 468, 7],
+      ["дуга", 11030, 380, 7],
+      ["дуга", 11814, 373, 7],
+      ["дуга", 12526, 402, 7],
+      ["дуга", 13224, 391, 7],
+      ["дуга", 13989, 378, 7],
+      ["дуга", 14950, 394, 7],
+      ["дуга", 15853, 331, 7],
+      ["дуга", 16849, 320, 7],
+      ["дуга", 17806, 320, 7],
+      ["дуга", 18507, 320, 7],
+      ["дуга", 19349, 354, 7],
+      ["дуга", 20156, 354, 7],
+      ["дуга", 20913, 407, 7],
+      ["дуга", 21708, 479, 7],
+      ["дуга", 22572, 540, 7],
+      ["дуга", 23475, 540, 7],
+      ["дуга", 24308, 540, 7],
+      ["дуга", 25180, 540, 7],
+      ["дуга", 25983, 540, 7],
+      ["дуга", 26821, 518, 7],
+      ["ряд", 27284, 436, 4],
+      ["дуга", 27642, 491, 7],
+      ["дуга", 28469, 540, 7],
+      ["ряд", 29027, 477, 4],
+      ["дуга", 29382, 540, 7],
+      ["ряд", 29804, 519, 10],
+    ],
+    powers: [
+      ["щит", 3416, 288],
+      ["магнит", 11625, 303],
+      ["ускорение", 16417, 250],
+      ["щит", 22436, 470],
+      ["жизнь", 29971, 470],
+    ],
+    cps: [4323, 9016, 13016, 17548, 21548, 26638],
+    boss: 30464,
+    finish: 31664
   }
 ];
+/* Salire: Pilam — meta-progression: crystal bank, shop perks, skins, achievements, records, daily & sprint levels */
+const SKINS = [
+  { id: "classic", price: 0,   c1: "#ffffff", c2: "", c3: "", tr: "" },
+  { id: "ember",   price: 150, c1: "#fff3d0", c2: "#ffb02e", c3: "#ff4b2b", tr: "#ff9e3d" },
+  { id: "ice",     price: 150, c1: "#ffffff", c2: "#bfe9ff", c3: "#4fa8ff", tr: "#7cc4ff" },
+  { id: "toxic",   price: 250, c1: "#f4ffd6", c2: "#a8ff5c", c3: "#3fae2a", tr: "#8aff6a" },
+  { id: "gold",    price: 500, c1: "#fff8d6", c2: "#ffd23f", c3: "#c98a12", tr: "#ffd23f" },
+  { id: "void",    price: 900, c1: "#e6d9ff", c2: "#8a5cff", c3: "#2b0a4d", tr: "#a06bff" }
+];
+const PERK_PRICES = { shield: 120, life: 200, magnet: 150 };
+const ACHS = [["first","achFirst"],["sh100","achSh100"],["sh1000","achSh1000"],["combo15","achCombo"],["l1","achL1"],["camp","achCamp"],["hard","achHard"],["daily","achDaily"],["boss","achBoss"],["flawless","achFlawless"],["sprint","achSprint"]];
+const META = {
+  bank: Store.get("bank", 0), perks: Store.get("perks", {}), skins: Store.get("skins", ["classic"]),
+  skin: Store.get("skin", "classic"), records: Store.get("records", []), daily: Store.get("daily", {}),
+  ach: Store.get("ach", {}), ghost: Store.get("ghost", null),
+  save() { Store.set("bank", this.bank); Store.set("perks", this.perks); Store.set("skins", this.skins); Store.set("skin", this.skin); Store.set("records", this.records); Store.set("daily", this.daily); Store.set("ach", this.ach); Store.set("ghost", this.ghost); }
+};
+let toastT = null;
+function toast(msg) {
+  const el = document.getElementById("toast");
+  if (!el) return;
+  el.textContent = msg; el.classList.add("on");
+  clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove("on"), 3200);
+}
+function unlockAch(id) {
+  if (META.ach[id]) return;
+  META.ach[id] = 1; META.save();
+  try { AE.sfx.life(); } catch (e) {}
+  const a = ACHS.find(q => q[0] === id);
+  toast("\ud83c\udfc5 " + t(a ? a[1] : id));
+}
+function pushRecord(score, dist, shards) {
+  META.records.push({ s: Math.floor(score), d: Math.floor(dist / PX_PER_M), sh: shards, t: new Date().toLocaleDateString() });
+  META.records.sort((a, b) => b.s - a.s);
+  META.records = META.records.slice(0, 5);
+  META.save();
+}
+function fmtTime(sec) { const m = Math.floor(sec / 60), s = sec - m * 60; return (m ? m + ":" : "") + (s < 10 && m ? "0" : "") + s.toFixed(1); }
+function mulberry(seed) {
+  return function () {
+    seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+    let x = Math.imul(seed ^ seed >>> 15, 1 | seed);
+    x = x + Math.imul(x ^ x >>> 7, 61 | x) ^ x;
+    return ((x ^ x >>> 14) >>> 0) / 4294967296;
+  };
+}
+function genFixedLevel(seed, n, spd, biome, kind) {
+  const r = mulberry(seed);
+  const L = { name: kind === "daily" ? "daily" : "sprint", biome, track: BIOMES[biome].track, speed: spd, plat: [], haz: [], shards: [], powers: [], cps: [], finish: 0 };
+  let x = -900, y = 520;
+  L.plat.push([x, y, 2100]); x += 1200;
+  for (let i = 0; i < n; i++) {
+    const gap = Math.round((0.3 + r() * 0.35) * spd), w = Math.round((0.9 + r() * 0.8) * spd);
+    x += gap; y = Math.round(clamp(y + (r() - 0.5) * 160, 340, 600));
+    L.plat.push([x, y, w]);
+    if (r() < 0.5) L.haz.push([GUY_KINDS[Math.floor(r() * 4)], Math.round(x + w * (0.35 + r() * 0.4))]);
+    if (r() < 0.25) L.haz.push(["бабочка", Math.round(x - gap * 0.5), y - 130]);
+    if (r() < 0.45) L.shards.push(["ряд", x + 60, y - 120, 5]);
+    if (r() < 0.2) L.shards.push(["дуга", Math.round(x - gap * 0.5), y, 6]);
+    if (r() < 0.12) L.powers.push([["щит", "магнит", "ускорение"][Math.floor(r() * 3)], Math.round(x + w * 0.6), y - 150]);
+    if (i % 4 === 3) L.cps.push(x + 30);
+    x += w;
+  }
+  const fx = x + 80;
+  L.plat.push([fx, y, 3600]);
+  if (kind === "daily") { L.boss = fx + 800; L.finish = fx + 1900; }
+  else L.finish = fx + 1600;
+  return L;
+}
+function dailyLevel() { return genFixedLevel(Math.floor(Date.now() / 86400000) * 7919 + 13, 16, 350, Math.floor(Date.now() / 86400000) % 5, "daily"); }
+function sprintLevel() { return genFixedLevel(777, 26, 390, 0, "sprint"); }
+function fastFall() {
+  const P = G.p;
+  if (G.mode === "play" && P && !P.on && !P.rescue && P.vy > -400) {
+    P.vy = Math.max(P.vy, 1500); P.hold = false;
+    burst(P.x, P.y + 10, 8, curBiome().acc2, 220, 300);
+  }
+}
 const PW_MAP = { "щит": "shield", "магнит": "magnet", "ускорение": "od", "жизнь": "life" };
 const GUY_H = { "бабушка": 52, "школьник": 58, "ловец": 58, "мельница": 96 };
 const GUY_W = { "бабушка": 40, "школьник": 40, "ловец": 40, "мельница": 34 };
@@ -1075,15 +1621,16 @@ function speedAt(x) {
   if (G.campaign) return G.levelSpeed * diffMult();
   return (380 + Math.min(400, (x - G.startX) * 0.0042)) * diffMult();
 }
-function baseLives() { return G.diffMode === "easy" ? 5 : 3; }
+function baseLives() { return (G.diffMode === "easy" ? 5 : 3) + (META.perks.life ? 1 : 0); }
 function platUnder(x) {
   for (const pl of G.plats) if (x >= pl.x && x <= pl.x + pl.w) return pl;
   return null;
 }
 function loadLevel(ix) {
-  const L = LEVELS[ix];
+  const L = G.customLevel || LEVELS[ix];
   G.mode = "play";
   G.campaign = true; G.levelIx = ix; G.levelBiome = L.biome; G.levelSpeed = L.speed;
+  G.levelHits = 0; G.sprintT = 0; G.sprintSamples = []; G.sampleAcc = 0;
   G.plats = []; G.shards = []; G.haz = []; G.powers = []; G.parts = []; G.floats = []; G.events = [];
   G.startX = 0; G.t = 0; G.ts = 1; G.slowT = 0; G.overT = 0; G.dist = 0;
   G.combo = 0; G.comboT = 0; G.shield = 0; G.magnet = 0; G.od = 0;
@@ -1107,6 +1654,12 @@ function loadLevel(ix) {
   G.cps = (L.cps || []).map(cx => ({ x: cx, hit: false, plat: platUnder(cx) }));
   G.finishX = L.finish; G.finishPlat = platUnder(L.finish);
   G.cpX = 0;
+  if (L.boss) {
+    const bp = platUnder(L.boss) || G.plats[G.plats.length - 1];
+    G.boss = { x: L.boss, x0: L.boss, baseY: bp.y, y: bp.y - 200, hp: 3, t: 0, fire: 1.4, inv: 0, seen: false, dead: 0 };
+  } else G.boss = null;
+  if (META.perks.shield) G.shield = 1;
+  if (META.perks.magnet) G.magnet = 8;
   const startPlat = G.plats[0];
   G.p = { x: 0, y: startPlat.y - PR, vy: 0, on: startPlat, jumps: 0, coyote: 0, buf: 0, hold: false, inv: 1.2, sx: 1, sy: 1, trail: [], rescue: null, dead: false, blink: 2 };
   G.camX = G.p.x - G.VW * 0.3; G.camY = 0;
@@ -1176,7 +1729,7 @@ function genUntil(xMax) {
 }
 function worldReset(mode) {
   G.mode = mode; G.t = 0; G.ts = 1; G.slowT = 0; G.overT = 0;
-  if (mode === "play" && G.runKind === "campaign") { loadLevel(0); return; }
+  if (mode === "play" && G.runKind !== "endless") { loadLevel(0); return; }
   G.campaign = false; G.cps = []; G.finishX = Infinity; G.finishPlat = null; G.cpX = 0;
   G.plats = []; G.shards = []; G.haz = []; G.powers = []; G.parts = []; G.floats = []; G.events = [];
   G.startX = 0; G.genX = 0; G.genY = 520; G.lastPowX = 0;
@@ -1225,7 +1778,7 @@ function land(pl) {
   P.on = pl; P.y = pl.y - PR; P.vy = 0; P.jumps = 0;
   if (impact > 500) {
     P.sx = 1.3; P.sy = 0.72; AE.sfx.land();
-    const c = BIOMES[pl.z % 4].acc;
+    const c = BIOMES[pl.z % BIOMES.length].acc;
     for (let i = 0; i < 10; i++) part(P.x + rnd(-14, 14), pl.y - 2, rnd(-220, 220), rnd(-160, -30), rnd(0.25, 0.5), rnd(2, 4), c, 0, 500);
   }
   if (P.buf > 0) doJump(false);
@@ -1235,19 +1788,51 @@ function gameOver() {
   G.mode = "over"; P.dead = true; G.overT = 0; G.slowT = 0.9;
   burst(P.x, P.y, 60, curBiome().pc, 700, 200); ring(P.x, P.y, "#ffffff", 40);
   AE.sfx.over(); music("over"); AE.setOverdrive(false); AE.setDanger(false);
+  unlockAch("first"); pushRecord(G.score, G.dist, G.shardsN); META.save();
   G.events.push({ type: "over" });
 }
 function levelComplete() {
   const P = G.p;
   G.score += 500;
-  if (G.levelIx >= LEVELS.length - 1) {
+  if (G.runKind === "sprint") {
+    G.mode = "win"; G.overT = 0;
+    const tS = G.sprintT, gb = META.ghost, rec = !gb || tS < gb.t;
+    if (rec) { META.ghost = { t: tS, samples: G.sprintSamples.slice(0, 1200) }; }
+    G.sprintResult = { t: tS, rec };
+    unlockAch("sprint"); META.save();
+    burst(P.x, P.y, 80, "#ffd23f", 700, 200); ring(P.x, P.y, "#ffffff", 50);
+    AE.sfx.life(); music("win"); AE.setDanger(false); AE.setOverdrive(false);
+    G.events.push({ type: "win" });
+    return;
+  }
+  if (G.runKind === "daily") {
+    G.mode = "win"; G.overT = 0;
+    const today = new Date().toISOString().slice(0, 10);
+    if (META.daily.date !== today || G.score > (META.daily.best || 0)) META.daily = { date: today, best: Math.floor(G.score) };
+    META.save(); unlockAch("daily");
+    burst(P.x, P.y, 80, "#ffd23f", 700, 200); ring(P.x, P.y, "#ffffff", 50);
+    AE.sfx.life(); music("win"); AE.setDanger(false); AE.setOverdrive(false);
+    G.events.push({ type: "win" });
+    return;
+  }
+  if (G.runKind === "custom") {
     G.mode = "win"; G.overT = 0;
     burst(P.x, P.y, 80, "#ffd23f", 700, 200); ring(P.x, P.y, "#ffffff", 50);
     AE.sfx.life(); music("win"); AE.setDanger(false); AE.setOverdrive(false);
     G.events.push({ type: "win" });
     return;
   }
-  G.lives = Math.min(5, G.lives + 1);
+  if (G.levelIx >= LEVELS.length - 1) {
+    G.mode = "win"; G.overT = 0;
+    unlockAch("camp"); if (G.diffMode === "hard") unlockAch("hard");
+    burst(P.x, P.y, 80, "#ffd23f", 700, 200); ring(P.x, P.y, "#ffffff", 50);
+    AE.sfx.life(); music("win"); AE.setDanger(false); AE.setOverdrive(false);
+    G.events.push({ type: "win" });
+    return;
+  }
+  if (G.levelIx === 0) unlockAch("l1");
+  if (G.levelHits === 0) unlockAch("flawless");
+  G.lives = Math.min(6, G.lives + 1);
   loadLevel(G.levelIx + 1);
   G.levelScore0 = G.score; G.levelShards0 = G.shardsN;
   G.flash = 0.5; G.flashC = "#ffffff";
@@ -1256,7 +1841,7 @@ function levelComplete() {
 }
 function loseLife(kind) {
   const P = G.p;
-  G.lives--; G.combo = 0; G.comboT = 0;
+  G.lives--; G.combo = 0; G.comboT = 0; G.levelHits = (G.levelHits || 0) + 1;
   AE.sfx.hit(); addShake(0.7); G.flash = 0.55; G.flashC = "#ff2a4a"; G.slowT = 0.3;
   burst(P.x, P.y, 28, "#ff4b6e", 520);
   G.events.push({ type: "hit" });
@@ -1272,6 +1857,7 @@ function respawn() {
   P.x = clamp(G.cpX, pl.x + 20, Math.max(pl.x + 20, pl.x + pl.w - 20));
   P.y = pl.y - PR; P.vy = 0; P.on = pl; P.jumps = 0; P.coyote = 0; P.buf = 0;
   P.inv = 2.4; P.rescue = null; P.hold = false;
+  if (G.boss && G.boss.hp > 0) { G.boss.x = Math.max(G.boss.x0, P.x + 900); G.boss.t = 0; G.boss.fire = 1.4; }
   G.camX = P.x - G.VW * 0.3; G.camY = Math.min(0, P.y - 230) * 0.75;
   ring(P.x, P.y, "#ffffff", 26);
 }
@@ -1302,12 +1888,23 @@ function smash(h, x, y) {
   burst(x, y, 22, h.k === "orb" ? "#ff4b6e" : "#b07cff", 480);
   G.score += 50; floatText(x, y - 30, "+50", "#ffffff");
 }
+function smashBoss() {
+  const B = G.boss;
+  AE.sfx.smash(); AE.sfx.shatter(); addShake(0.8); G.flash = 0.5; G.flashC = "#ffffff";
+  burst(B.x, B.y, 80, "#ffd23f", 700); ring(B.x, B.y, "#ffffff", 60);
+  G.score += 500;
+  unlockAch("boss"); toast(t("levelDone"));
+}
 function useShield(x, y) { G.shield = 0; AE.sfx.shatter(); ring(x, y, "#7cc4ff", 34); burst(x, y, 18, "#9fdcff", 420); G.p.inv = Math.max(G.p.inv, 0.8); }
 function collect(s) {
   s.dead = true;
   G.shardsN++; G.combo++; G.comboT = 1.7; G.maxCombo = Math.max(G.maxCombo, G.combo);
   const mult = Math.min(8, 1 + Math.floor(G.combo / 8));
   G.score += 10 * mult;
+  META.bank++;
+  if (META.bank >= 100) unlockAch("sh100");
+  if (META.bank >= 1000) unlockAch("sh1000");
+  if (G.combo >= 15) unlockAch("combo15");
   AE.sfx.collect(G.combo);
   const b = curBiome(), sy = platY(s);
   for (let i = 0; i < (G.hq ? 6 : 3); i++) part(s.x, sy, rnd(-180, 180), rnd(-180, 180), rnd(0.25, 0.5), rnd(2, 4), i % 2 ? b.acc2 : "#ffffff", 0, 0);
@@ -1368,11 +1965,27 @@ function playerUpdate(dt) {
         floatText(P.x, P.y - 60, t("checkpoint"), "#ffffff");
       }
     }
-    if (P.x >= G.finishX) { levelComplete(); return; }
+    if (P.x >= G.finishX && !(G.boss && G.boss.hp > 0)) { levelComplete(); return; }
   }
   if (P.y - PR > G.camY + VH + 60) {
     if (G.shield || G.od > 0) { if (!(G.od > 0)) useShield(P.x, P.y); P.vy = -1500; P.hold = false; P.jumps = 1; G.flash = 0.3; G.flashC = "#7cc4ff"; }
     else { AE.sfx.fall(); loseLife("fall"); return; }
+  }
+  if (G.boss && G.boss.hp > 0 && !P.rescue) {
+    const B = G.boss, top = B.y - 55;
+    const nx = clamp(P.x, B.x - 50, B.x + 50), ny = clamp(P.y, top, B.y + 55);
+    if ((P.x - nx) ** 2 + (P.y - ny) ** 2 < (PR * 0.9) ** 2) {
+      if (P.vy > 0 && P.y < top + 34 && B.inv <= 0) {
+        B.hp--; B.inv = 1.1; P.vy = -760; P.jumps = 1;
+        AE.sfx.smash(); addShake(0.5); burst(B.x, top, 34, "#ffd23f", 520);
+        G.score += 150; floatText(B.x, top - 20, "-1", "#ffd23f");
+        if (B.hp <= 0) smashBoss();
+      } else if (P.inv <= 0) {
+        if (G.od > 0) { B.hp = 0; B.inv = 0; smashBoss(); }
+        else if (G.shield) { useShield(P.x, P.y); P.x = B.x - 320; P.vy = -500; }
+        else { loseLife("hit"); return; }
+      }
+    }
   }
   for (const h of G.haz) {
     if (!h.alive || Math.abs(h.x - P.x) > 120) continue;
@@ -1381,6 +1994,9 @@ function playerUpdate(dt) {
       const top = h.plat.y - h.h * 0.85, cx = clamp(P.x, h.x + 7, h.x + h.w - 7), cy = clamp(P.y, top, h.plat.y);
       hit = (P.x - cx) ** 2 + (P.y - cy) ** 2 < (PR * 0.78) ** 2;
       hx = h.x + h.w / 2; hy = h.plat.y - h.h / 2;
+    } else if (h.k === "wave") {
+      hy = h.y - 14;
+      hit = (P.x - h.x) ** 2 + (P.y - hy) ** 2 < (PR + 13) ** 2;
     } else {
       hy = h.by + Math.sin(G.t * h.sp + h.ph) * h.amp;
       hit = (P.x - h.x) ** 2 + (P.y - hy) ** 2 < (PR + 13) ** 2;
@@ -1426,13 +2042,33 @@ function gameUpdate(rdt) {
       else if (h.k === "orb") h.x = h.bx + Math.sin(G.t * h.sp * 0.6 + h.ph) * 46;
     }
   }
+  for (const h of G.haz) if (h.k === "wave") h.x += h.vx * dt;
+  if (G.boss && G.mode === "play") {
+    const B = G.boss, P2 = G.p;
+    B.inv = Math.max(0, B.inv - dt);
+    if (B.hp > 0) {
+      B.t += dt;
+      if (!B.seen && B.x - P2.x < G.VW * 0.9) { B.seen = true; toast(t("bossWarn")); floatText(P2.x, P2.y - 90, t("bossHint"), "#ffd23f"); addShake(0.35); }
+      B.y = B.baseY - 70 - Math.max(0, Math.sin(B.t * 1.4)) * 200;
+      B.fire -= dt;
+      if (B.fire <= 0 && B.x - P2.x < G.VW && B.x > P2.x) { B.fire = 1.9; G.haz.push({ k: "wave", x: B.x - 70, y: B.baseY, vx: -320, alive: true }); }
+      if (B.x < P2.x + 100 && P2.y > B.y + 20) B.x = P2.x + G.VW * 0.8;
+    } else {
+      B.dead += dt; B.y += 260 * dt;
+    }
+  }
+  if (G.mode === "play" && G.runKind === "sprint" && G.p && !G.p.rescue) {
+    G.sprintT += dt;
+    G.sampleAcc += dt;
+    if (G.sampleAcc >= 0.1) { G.sampleAcc = 0; G.sprintSamples.push(Math.round(G.p.x), Math.round(G.p.y)); }
+  }
   if (G.mode === "menu") P.x += speedAt(0) * dt;
   else if (G.mode === "play") playerUpdate(dt);
   else G.overT += rdt;
   const z = zoneAtX(P.x);
   if (z !== G.zone) {
     G.zone = z;
-    const bi = z % 4;
+    const bi = z % BIOMES.length;
     if (bi !== G.bgTo) { G.bgFrom = G.bgTo; G.bgTo = bi; G.bgMix = 0; }
     if (G.mode === "play") {
       music(BIOMES[bi].track); AE.sfx.zone(); addShake(0.2);
@@ -1626,7 +2262,24 @@ const R = (() => {
     const g = cx.createLinearGradient(0, VHs * 0.7, 0, VHs); g.addColorStop(0, hexA("#ff5a1f", 0)); g.addColorStop(1, hexA("#ff5a1f", 0.45));
     cx.globalCompositeOperation = "lighter"; cx.fillStyle = g; cx.fillRect(0, VHs * 0.7, VW, VHs * 0.3); cx.globalCompositeOperation = "source-over";
   }
-  const BG = { city: bgCity, caves: bgCaves, aurora: bgAurora, storm: bgStorm };
+  function bgLava(b) {
+    sky(b); drawStars(0.4, 0.01);
+    const sx = VW * 0.3, sy = VHs * 0.3;
+    cx.globalCompositeOperation = "lighter"; glow("#ff5a1f", sx, sy, 340, 0.5); cx.globalCompositeOperation = "source-over";
+    cx.globalAlpha = 1; cx.fillStyle = "#1a0303"; cx.beginPath(); cx.arc(sx, sy, 70, 0, 6.283); cx.fill();
+    cx.strokeStyle = "#ff6a3d"; cx.lineWidth = 2; cx.stroke();
+    mount(0.05, 6.6, VHs * 0.7, 240, b.far, "#ff5a1f", 2);
+    mount(0.12, 9.4, VHs * 0.84, 170, b.near, null);
+    const g = cx.createLinearGradient(0, VHs * 0.72, 0, VHs);
+    g.addColorStop(0, hexA("#ff3f0a", 0)); g.addColorStop(1, hexA("#ff5a1f", 0.5));
+    cx.globalCompositeOperation = "lighter"; cx.fillStyle = g; cx.fillRect(0, VHs * 0.72, VW, VHs * 0.28);
+    for (let k = 0; k < 3; k++) {
+      const yy = VHs * (0.78 + k * 0.07) + Math.sin(G.t * 1.2 + k * 2) * 8;
+      cx.globalAlpha = 0.08; cx.fillStyle = "#ffb347"; cx.fillRect(0, yy, VW, 10);
+    }
+    cx.globalAlpha = 1; cx.globalCompositeOperation = "source-over";
+  }
+  const BG = { city: bgCity, caves: bgCaves, aurora: bgAurora, storm: bgStorm, lava: bgLava };
   function background() {
     const a = BIOMES[G.bgFrom], b = BIOMES[G.bgTo], s = G.scale * dpr;
     if (G.bgMix >= 1 || a === b) { BG[b.type](b); return; }
@@ -1650,13 +2303,16 @@ const R = (() => {
       let vx = -30, vy = -10;
       if (b.type === "caves") { vx = -20 + Math.sin(G.t + q.p) * 20; vy = Math.cos(G.t * 0.8 + q.p) * 15; }
       else if (b.type === "aurora") { vx = -90; vy = 60; }
-      else if (b.type === "storm") { vx = -60; vy = -110; }
+      else if (b.type === "storm") { vx = -160; vy = 540; }
+      else if (b.type === "lava") { vx = -24 + Math.sin(G.t * 1.1 + q.p) * 18; vy = -95; }
       q.x += vx * sp * q.v * dt; q.y += vy * q.v * dt;
       if (q.x < -10) q.x += VW + 20; if (q.x > VW + 10) q.x -= VW + 20;
       if (q.y < -10) q.y += VHs + 20; if (q.y > VHs + 10) q.y -= VHs + 20;
-      const c = b.amb[i % 2], fl = b.type === "storm" ? 0.5 + 0.5 * Math.sin(G.t * 9 + q.p) : 1;
+      const c = b.amb[i % 2], fl = b.type === "storm" || b.type === "lava" ? 0.5 + 0.5 * Math.sin(G.t * 9 + q.p) : 1;
       if (G.hq) glow(c, q.x, q.y, q.s * 5, 0.35 * fl);
-      cx.globalAlpha = 0.8 * fl; cx.fillStyle = c; cx.fillRect(q.x - q.s / 2, q.y - q.s / 2, q.s, q.s);
+      cx.globalAlpha = 0.8 * fl; cx.fillStyle = c;
+      if (b.type === "storm") cx.fillRect(q.x - 0.75, q.y - 6, 1.5, 12);
+      else cx.fillRect(q.x - q.s / 2, q.y - q.s / 2, q.s, q.s);
     }
     cx.globalCompositeOperation = "source-over"; cx.globalAlpha = 1;
   }
@@ -1720,13 +2376,14 @@ const R = (() => {
     for (const pl of G.plats) {
       const x = pl.x - G.camX + ox;
       if (x > VW + 20 || x + pl.w < -20) continue;
-      const y = pl.y - G.camY + oy, b = BIOMES[pl.z % 4], bot = VHs + 40;
+      const y = pl.y - G.camY + oy, b = BIOMES[pl.z % BIOMES.length], bot = VHs + 40;
       let g = grads[b.type];
       if (!g) { g = cx.createLinearGradient(0, 300 - G.camY, 0, VHs); g.addColorStop(0, b.body[0]); g.addColorStop(1, b.body[1]); grads[b.type] = g; }
       cx.globalAlpha = 1; cx.fillStyle = g; cx.fillRect(x, y, pl.w, bot - y);
       if (b.type === "city") decorCity(pl, x, y, bot, b);
       else if (b.type === "caves") decorCaves(pl, x, y, b);
       else if (b.type === "aurora") decorAurora(pl, x, y);
+      else if (b.type === "lava") decorLava(pl, x, y, b);
       else decorStorm(pl, x, y);
       const sg = cx.createLinearGradient(0, y, 0, y + 260); sg.addColorStop(0, hexA(b.acc2, 0.6)); sg.addColorStop(1, hexA(b.acc2, 0));
       cx.globalAlpha = 1; cx.fillStyle = sg; cx.fillRect(x, y, 2, 260); cx.fillRect(x + pl.w - 2, y, 2, 260);
@@ -1737,6 +2394,17 @@ const R = (() => {
       cx.globalCompositeOperation = "source-over";
       cx.fillStyle = hexA("#ffffff", 0.88); cx.fillRect(x, y - 1, pl.w, 2.5);
     }
+  }
+  function decorLava(pl, x, y, b) {
+    const n = Math.floor(pl.w / 90);
+    cx.globalAlpha = 1; cx.strokeStyle = hexA(b.acc, 0.5); cx.lineWidth = 2;
+    cx.beginPath();
+    for (let i = 0; i < n; i++) {
+      const hv = hash(pl.seed + i * 4.9); if (hv < 0.4) continue;
+      const px = x + 30 + i * 90;
+      cx.moveTo(px, y + 4); cx.lineTo(px + 10, y + 18 + hv * 20); cx.lineTo(px - 6, y + 34 + hv * 30);
+    }
+    cx.stroke();
   }
   function tri(x, y, w, h) { cx.beginPath(); cx.moveTo(x - w / 2, y); cx.lineTo(x, y - h); cx.lineTo(x + w / 2, y); cx.closePath(); cx.fill(); cx.stroke(); }
   /* препятствия-персонажи: бабушка, школьник, ловец бабочек, мельница */
@@ -1859,6 +2527,11 @@ const R = (() => {
         const by = h.plat.y - G.camY + oy, m = x + h.w / 2;
         cx.globalCompositeOperation = "lighter"; glow("#ff2d6f", m, by - h.h * 0.45, h.h * 1.1, 0.3 + 0.1 * Math.sin(G.t * 6 + h.seed)); cx.globalCompositeOperation = "source-over";
         guy(h.guy, m, by, h.w, h.h, h);
+      } else if (h.k === "wave") {
+        const wy = h.y - G.camY + oy - 14;
+        cx.globalCompositeOperation = "lighter"; glow("#ff6a3d", x, wy, 44, 0.55); cx.globalCompositeOperation = "source-over";
+        cx.globalAlpha = 1; cx.fillStyle = "#ffb02e"; cx.strokeStyle = "#fff3c4"; cx.lineWidth = 2;
+        cx.beginPath(); cx.arc(x, wy, 13 + Math.sin(G.t * 10 + h.x * 0.05) * 2, 0, 6.283); cx.fill(); cx.stroke();
       } else butterfly(x, h.by + Math.sin(G.t * h.sp + h.ph) * h.amp - G.camY + oy, h.ph);
     }
     cx.globalAlpha = 1;
@@ -1902,16 +2575,16 @@ const R = (() => {
   function player(ox, oy) {
     const P = G.p;
     if (!P || G.mode === "menu" || P.dead) return;
-    const b = curBiome(), od = G.od > 0, tc = od ? "#ffd23f" : b.acc2, tr = P.trail, n = tr.length;
+    const b = curBiome(), od = G.od > 0, SK = SKINS.find(q => q.id === META.skin) || SKINS[0], tc = od ? "#ffd23f" : (SK.tr || b.acc2), tr = P.trail, n = tr.length;
     cx.globalCompositeOperation = "lighter";
     for (let i = 0; i < n; i++) { const k = i / n, q = tr[i]; glow(tc, q.x - G.camX + ox, q.y - G.camY + oy, PR * (0.6 + k * 1.4) * (od ? 1.4 : 1), 0.08 + k * 0.22); }
     const x = P.x - G.camX + ox, y = P.y - G.camY + oy;
     if (P.inv > 0 && !P.rescue && Math.floor(G.t * 18) % 2) { cx.globalCompositeOperation = "source-over"; cx.globalAlpha = 1; return; }
-    glow(b.pc, x, y, PR * 4.2, 0.55); glow("#ffffff", x, y, PR * 1.8, 0.35);
+    glow(SK.c2 || b.pc, x, y, PR * 4.2, 0.55); glow("#ffffff", x, y, PR * 1.8, 0.35);
     cx.globalCompositeOperation = "source-over"; cx.globalAlpha = 1;
     cx.save(); cx.translate(x, y); cx.rotate(clamp(P.vy / 2400, -0.25, 0.3)); cx.scale(P.sx, P.sy);
     const g = cx.createRadialGradient(-5, -6, 2, 0, 0, PR);
-    g.addColorStop(0, "#ffffff"); g.addColorStop(0.5, b.pc); g.addColorStop(1, b.acc2);
+    g.addColorStop(0, SK.c1 || "#ffffff"); g.addColorStop(0.5, SK.c2 || b.pc); g.addColorStop(1, SK.c3 || b.acc2);
     cx.fillStyle = g; cx.beginPath(); cx.arc(0, 0, PR, 0, 6.283); cx.fill();
     const bl = (G.t % 3.2) < 0.12 ? 0.15 : 1;
     cx.fillStyle = "#1a0b2e"; cx.beginPath();
@@ -1926,6 +2599,38 @@ const R = (() => {
     if (G.magnet > 0) {
       cx.globalAlpha = 1; cx.setLineDash([6, 8]); cx.lineDashOffset = -G.t * 40; cx.strokeStyle = hexA("#ff6bd6", 0.6); cx.lineWidth = 1.5;
       cx.beginPath(); cx.arc(x, y, PR + 18, 0, 6.283); cx.stroke(); cx.setLineDash([]);
+    }
+    if (G.runKind === "sprint" && META.ghost && META.ghost.samples && META.ghost.samples.length > 3) {
+      const i = Math.floor(G.sprintT / 0.1) * 2;
+      if (i + 3 < META.ghost.samples.length) {
+        const gx = META.ghost.samples[i] - G.camX + ox, gy = META.ghost.samples[i + 1] - G.camY + oy;
+        cx.globalAlpha = 0.38; cx.fillStyle = "#cfe8ff";
+        cx.beginPath(); cx.arc(gx, gy, PR, 0, 6.283); cx.fill();
+        cx.strokeStyle = "#ffffff"; cx.lineWidth = 1.5; cx.stroke();
+        cx.globalAlpha = 1;
+      }
+    }
+  }
+  function bossDraw(ox, oy) {
+    const B = G.boss;
+    if (!B || (B.hp <= 0 && B.dead > 1.6)) return;
+    const x = B.x - G.camX + ox;
+    if (x < -160 || x > VW + 160) return;
+    const y = B.y - G.camY + oy, flash = B.inv > 0 && Math.floor(G.t * 14) % 2 === 0;
+    cx.globalCompositeOperation = "lighter"; glow("#ffd23f", x, y, 130, 0.45 + 0.2 * Math.sin(G.t * 4)); cx.globalCompositeOperation = "source-over";
+    cx.globalAlpha = 1; cx.lineJoin = "round";
+    cx.save(); cx.translate(x, y); cx.rotate(G.t * (B.hp > 0 ? 2.2 : 0.4));
+    cx.fillStyle = flash ? "#ffffff" : "#5a4030"; cx.strokeStyle = "#241708"; cx.lineWidth = 3;
+    for (let i = 0; i < 4; i++) {
+      cx.rotate(Math.PI / 2);
+      cx.beginPath(); cx.moveTo(0, -6); cx.lineTo(96, -16); cx.lineTo(96, 16); cx.lineTo(0, 6); cx.closePath(); cx.fill(); cx.stroke();
+    }
+    cx.restore();
+    cx.fillStyle = flash ? "#ffffff" : "#3a2a1a"; cx.beginPath(); cx.arc(x, y, 40, 0, 6.283); cx.fill(); cx.stroke();
+    cx.fillStyle = "#ffd23f"; cx.beginPath(); cx.arc(x, y, 16 + Math.sin(G.t * 5) * 2, 0, 6.283); cx.fill();
+    if (B.hp > 0) for (let i = 0; i < 3; i++) {
+      cx.fillStyle = i < B.hp ? "#ff4b6e" : "rgba(255,255,255,.2)";
+      cx.beginPath(); cx.arc(x - 20 + i * 20, y - 82, 6, 0, 6.283); cx.fill();
     }
   }
   function particles(ox, oy) {
@@ -1974,7 +2679,7 @@ const R = (() => {
     background();
     ambient(dt);
     const amp = G.trauma * G.trauma * 22, ox = amp ? (Math.random() * 2 - 1) * amp : 0, oy = amp ? (Math.random() * 2 - 1) * amp : 0;
-    platforms(ox, oy); markers(ox, oy); hazards(ox, oy); powers(ox, oy); shards(ox, oy); player(ox, oy); particles(ox, oy); floats(ox, oy);
+    platforms(ox, oy); markers(ox, oy); hazards(ox, oy); bossDraw(ox, oy); powers(ox, oy); shards(ox, oy); player(ox, oy); particles(ox, oy); floats(ox, oy);
     speedLines();
     if (G.mode === "play" && G.lives === 1) danger();
     if (G.flash > 0) { cx.globalAlpha = Math.min(1, G.flash) * 0.45; cx.fillStyle = G.flashC; cx.fillRect(0, 0, VW, VHs); cx.globalAlpha = 1; }
@@ -1988,7 +2693,7 @@ const R = (() => {
   const root = document.documentElement;
   const HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7.5-4.6-9.6-9.2C.9 8.3 3 4.5 6.6 4.5c2.1 0 3.6 1.2 5.4 3.1 1.8-1.9 3.3-3.1 5.4-3.1 3.6 0 5.7 3.8 4.2 7.3C19.5 16.4 12 21 12 21z" fill="#ff6b9a"/></svg>';
   const PWC = { shield: "#7cc4ff", magnet: "#ff6bd6", overdrive: "#ffd23f" };
-  const SUB = ["settings", "howto", "langs"], JUMP_KEYS = ["Space", "KeyW", "ArrowUp"];
+  const SUB = ["settings", "howto", "langs", "shop", "records", "ach", "builder"], JUMP_KEYS = ["Space", "KeyW", "ArrowUp"];
   const last = {};
   let screen = "splash", backTo = "menu", paused = false, audioOn = false, overShown = true;
   let hintT = 0, lastT = 0, themeB = -1, pwKey = "#", hqLocked = false, perfT = 0, perfN = 0, perfSum = 0, hov = null;
@@ -2010,10 +2715,74 @@ const R = (() => {
     screen = id;
     document.querySelectorAll(".screen").forEach(s => s.classList.toggle("active", s.id === id));
     const lb = $("langBtn"); if (lb) lb.classList.toggle("on", id === "splash" || id === "menu");
+    if (id === "shop") refreshShop();
+    else if (id === "records") renderRecords();
+    else if (id === "ach") renderAch();
+    else if (id === "builder") $("bldMsg").textContent = "";
   }
   function hudOn(b) { $("hud").classList.toggle("on", b); $("jump").classList.toggle("on", b); }
   function setText(id, v) { if (last[id] !== v) { last[id] = v; $(id).textContent = v; } }
-  function updateBest() { $("menuBest").textContent = fmt(Store.get("best", 0)); }
+  function updateBest() {
+    $("menuBest").textContent = fmt(Store.get("best", 0));
+    $("menuBank").textContent = fmt(META.bank);
+    $("dailyBadge").textContent = META.daily.date === new Date().toISOString().slice(0, 10) ? "\u2713" : "";
+  }
+  function refreshShop() {
+    $("shopBank").textContent = fmt(META.bank);
+    document.querySelectorAll("[data-perk]").forEach(b => {
+      const k = b.dataset.perk;
+      b.textContent = META.perks[k] ? "\u2713 " + t("bought") : "\ud83d\udc8e " + PERK_PRICES[k];
+      b.classList.toggle("on", !!META.perks[k]);
+    });
+    $("skinGrid").innerHTML = SKINS.map((s, i) => {
+      const owned = META.skins.indexOf(s.id) >= 0, sel = META.skin === s.id;
+      return '<button class="btn lang' + (sel ? " on" : "") + '" data-skin="' + i + '"><span>' + t("sk" + s.id.charAt(0).toUpperCase() + s.id.slice(1)) + '</span><small>' + (owned ? (sel ? "\u2713" : "\u2713 " + t("bought")) : "\ud83d\udc8e " + s.price) + "</small></button>";
+    }).join("");
+  }
+  function renderRecords() {
+    const list = $("recList");
+    list.innerHTML = META.records.length
+      ? META.records.map((r, i) => '<li><span>#' + (i + 1) + ' · <b>' + fmt(r.s) + '</b></span><span>' + fmt(r.d) + " " + t("unit") + " · \ud83d\udc8e" + r.sh + '</span><span class="recdate">' + r.t + "</span></li>").join("")
+      : '<li>' + t("recordsEmpty") + "</li>";
+  }
+  function renderAch() {
+    $("achList").innerHTML = ACHS.map(a => '<li class="' + (META.ach[a[0]] ? "done" : "") + '"><span>' + t(a[1]) + "</span></li>").join("");
+  }
+  function buyPerk(k) {
+    if (META.perks[k]) return;
+    if (META.bank < PERK_PRICES[k]) { toast(t("noCrystals")); return; }
+    META.bank -= PERK_PRICES[k]; META.perks[k] = 1; META.save();
+    AE.sfx.power(); refreshShop(); updateBest();
+  }
+  function buySkin(i) {
+    const s = SKINS[i];
+    if (!s) return;
+    if (META.skins.indexOf(s.id) >= 0) { META.skin = s.id; }
+    else if (META.bank >= s.price) { META.bank -= s.price; META.skins.push(s.id); META.skin = s.id; }
+    else { toast(t("noCrystals")); return; }
+    META.save(); AE.sfx.power(); refreshShop();
+  }
+  function exportLevel() {
+    const L = G.customLevel || LEVELS[Math.max(0, G.levelIx)] || LEVELS[0];
+    $("bldText").value = JSON.stringify(L);
+    const m = $("bldMsg"); m.textContent = "\u2713"; m.classList.add("ok");
+    try { $("bldText").select(); if (document.execCommand) document.execCommand("copy"); } catch (e) {}
+  }
+  function playCustom() {
+    const m = $("bldMsg"); m.classList.remove("ok");
+    let L = null;
+    try { L = JSON.parse($("bldText").value); } catch (e) { L = null; }
+    if (!L || !Array.isArray(L.plat) || L.plat.length < 2) { m.textContent = t("badLevel"); return; }
+    L = Object.assign({ haz: [], shards: [], powers: [], cps: [], biome: 0, speed: 360 }, L);
+    L.plat = L.plat.filter(p => Array.isArray(p) && p.length >= 3 && isFinite(p[0]) && isFinite(p[1]) && isFinite(p[2]));
+    if (L.plat.length < 2) { m.textContent = t("badLevel"); return; }
+    L.haz = (L.haz || []).filter(hz => Array.isArray(hz) && hz.length >= 2 && (hz[0] === "\u0431\u0430\u0431\u043e\u0447\u043a\u0430" || GUY_KINDS.indexOf(hz[0]) >= 0));
+    const last = L.plat[L.plat.length - 1];
+    if (!isFinite(L.finish) || L.finish < last[0] || L.finish > last[0] + last[2]) { L.finish = last[0] + last[2] - 200; L.boss = null; }
+    if (!BIOMES[L.biome]) L.biome = 0;
+    G.pendingCustom = L;
+    startGame("custom");
+  }
   function refreshToggles() {
     $("qualityBtn").textContent = t(G.hq ? "high" : "low");
     $("shakeBtn").textContent = t(G.shakeOn ? "on" : "off");
@@ -2072,7 +2841,8 @@ const R = (() => {
   }
   function hud(rdt) {
     setText("score", fmt(G.score));
-    if (G.campaign) {
+    if (G.runKind === "sprint") setText("dist", "\u23f1 " + fmtTime(G.sprintT));
+    else if (G.campaign) {
       const pct = clamp((G.p.x - G.startX) / Math.max(1, G.finishX - G.startX) * 100, 0, 100);
       setText("dist", t("level") + " " + (G.levelIx + 1) + "/" + LEVELS.length + " · " + Math.floor(pct) + "%");
     } else setText("dist", fmt(G.dist / PX_PER_M) + " " + t("unit"));
@@ -2103,6 +2873,15 @@ const R = (() => {
     $("wnShards").textContent = fmt(G.shardsN);
     $("wnCombo").textContent = "×" + Math.max(1, G.maxCombo);
     $("wnBest").textContent = fmt(Math.max(best, sc));
+    pushRecord(sc, G.dist, G.shardsN);
+    unlockAch("first"); META.save();
+    const tt = $("winTitleEl"), ss = $("winSubEl");
+    if (G.runKind === "sprint" && G.sprintResult) {
+      tt.textContent = t("sprintDone");
+      ss.textContent = fmtTime(G.sprintResult.t) + " · " + (G.sprintResult.rec ? t("sprintNew") : t("bestTime") + " " + fmtTime(META.ghost ? META.ghost.t : G.sprintResult.t));
+    } else if (G.runKind === "daily") { tt.textContent = t("dailyWin"); ss.textContent = t("dailyDone"); }
+    else if (G.runKind === "custom") { tt.textContent = t("winTitle"); ss.textContent = t("customDone"); }
+    else { tt.textContent = t("winTitle"); ss.textContent = t("winSub"); }
     hudOn(false); hintT = 0; $("hint").classList.remove("on");
     show("win");
   }
@@ -2117,12 +2896,12 @@ const R = (() => {
       show(null); hudOn(true);
       overShown = true; hintT = 5; $("hint").classList.add("on");
       showBannerLevel(G.levelIx);
-      music(LEVELS[G.levelIx].track);
+      music((G.customLevel || LEVELS[G.levelIx]).track);
     } else startGame("endless");
   }
   function applyTrackOverride() {
-    if (G.mode === "play" && G.campaign) music(LEVELS[G.levelIx].track);
-    else if (G.mode === "play") music(BIOMES[G.bgTo % 4].track);
+    if (G.mode === "play" && G.campaign) music((G.customLevel || LEVELS[G.levelIx]).track);
+    else if (G.mode === "play") music(BIOMES[G.bgTo % BIOMES.length].track);
     else music("menu");
   }
   function showOver() {
@@ -2143,7 +2922,12 @@ const R = (() => {
     if (prev !== 0) { G.bgFrom = prev; G.bgTo = 0; G.bgMix = 0; }
   }
   function startGame(kind) {
-    G.runKind = kind === "campaign" ? "campaign" : "endless";
+    G.runKind = kind;
+    if (kind === "sprint") G.customLevel = sprintLevel();
+    else if (kind === "daily") G.customLevel = dailyLevel();
+    else if (kind === "custom") G.customLevel = G.pendingCustom || sprintLevel();
+    else G.customLevel = null;
+    G.pendingCustom = null;
     paused = false; AE.setPaused(false);
     resetWorld("play");
     G.lives = baseLives();
@@ -2160,6 +2944,8 @@ const R = (() => {
   }
   function toMenu() {
     paused = false; AE.setPaused(false);
+    G.customLevel = null;
+    META.save();
     resetWorld("menu");
     music("menu"); AE.setDanger(false); AE.setOverdrive(false);
     hudOn(false); hintT = 0; $("hint").classList.remove("on"); overShown = true;
@@ -2197,6 +2983,11 @@ const R = (() => {
     switch (a) {
       case "campaign": startGame("campaign"); break;
       case "play": startGame("endless"); break;
+      case "sprint": startGame("sprint"); break;
+      case "daily": startGame("daily"); break;
+      case "shop": case "ach": case "records": case "builder": openSub(a); break;
+      case "exportLv": exportLevel(); break;
+      case "playCustom": playCustom(); break;
       case "retry": case "restart": retryLevel(); break;
       case "music": musicOn = !musicOn; Store.set("musicOn", musicOn); applyVolumes(); refreshToggles(); break;
       case "track": { const i = TRACKS.indexOf(TRACK_SEL); TRACK_SEL = TRACKS[(i + 1) % TRACKS.length]; Store.set("trackSel", TRACK_SEL); applyTrackOverride(); refreshToggles(); break; }
@@ -2218,12 +3009,14 @@ const R = (() => {
 
   /* ---------- input ---------- */
   document.addEventListener("click", e => {
-    const el = e.target.closest ? e.target.closest("[data-act],[data-lang],[data-diff]") : null;
+    const el = e.target.closest ? e.target.closest("[data-act],[data-lang],[data-diff],[data-perk],[data-skin]") : null;
     if (screen === "splash" && !el) { enter(); return; }
     if (!el) return;
     AE.sfx.click();
     if (el.dataset.diff) { G.diffMode = el.dataset.diff; Store.set("diff", G.diffMode); refreshToggles(); }
     else if (el.dataset.lang) { applyLang(el.dataset.lang); Store.set(LANG_KEY, LANG); }
+    else if (el.dataset.perk) buyPerk(el.dataset.perk);
+    else if (el.dataset.skin !== undefined && el.dataset.skin !== null && el.dataset.skin !== "") buySkin(+el.dataset.skin);
     else act(el.dataset.act);
     if (el.blur) el.blur();
   });
@@ -2260,10 +3053,16 @@ const R = (() => {
     } else if (canJump() && !(e.target.closest && e.target.closest("button,input"))) pressJump();
   });
   window.addEventListener("mouseup", e => { if (isRight(e)) jumpRelease(); });
+  let touchY0 = null, swiped = false;
   window.addEventListener("touchstart", e => {
+    touchY0 = e.touches.length ? e.touches[0].clientY : null; swiped = false;
     if (e.target.closest && e.target.closest("button,input")) return;
     if (canJump()) { e.preventDefault(); pressJump(); }
   }, { passive: false });
+  window.addEventListener("touchmove", e => {
+    if (touchY0 == null || swiped || !e.touches.length) return;
+    if (e.touches[0].clientY - touchY0 > 60) { swiped = true; fastFall(); }
+  }, { passive: true });
   window.addEventListener("touchend", e => { if (!e.touches.length) jumpRelease(); });
   window.addEventListener("touchcancel", () => jumpRelease());
   window.addEventListener("keydown", e => {
@@ -2274,6 +3073,7 @@ const R = (() => {
       else if (screen === "splash" && !onBtn) { e.preventDefault(); enter(); }
       return;
     }
+    if ((e.code === "KeyS" || e.code === "ArrowDown") && !e.repeat) fastFall();
     if (e.code === "Enter" && screen === "splash" && !onBtn) { enter(); return; }
     if (e.code === "Escape" || e.code === "KeyP") {
       if (SUB.indexOf(screen) >= 0) { AE.sfx.click(); back(); }
