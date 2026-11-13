@@ -10,7 +10,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:#05010d;color:#fff;font-family:"Segoe UI",system-ui,-apple-system,"Helvetica Neue",Roboto,"Noto Sans","PingFang SC","Microsoft YaHei","Noto Sans SC","Noto Sans Arabic","Segoe UI Arabic",Tahoma,Arial,sans-serif;user-select:none;-webkit-user-select:none;touch-action:none;cursor:default}
 canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block}
-#ui{position:fixed;inset:0;pointer-events:none}
+#ui{position:fixed;inset:0;z-index:10;pointer-events:none}
 .screen{position:absolute;inset:0;z-index:5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;padding:32px;opacity:0;visibility:hidden;transform:scale(1.035);transition:opacity .45s ease,transform .45s ease,visibility 0s linear .45s;pointer-events:none}
 .screen.active{opacity:1;visibility:visible;transform:none;transition:opacity .45s ease,transform .45s ease;pointer-events:auto}
 #splash{cursor:pointer}
@@ -133,7 +133,7 @@ html[lang=ar] *{letter-spacing:0!important}
 <button class="btn" data-act="langs" data-i18n="language"></button>
 </nav>
 <div class="bestline"><span data-i18n="best"></span> · <b id="menuBest">0</b></div>
-<div class="corner">v2.2</div>
+<div class="corner">v2.3</div>
 </section>
 <section id="langs" class="screen">
 <h2 data-i18n="language"></h2>
@@ -2161,6 +2161,7 @@ const R = (() => {
   function setPause(b) {
     if (G.mode !== "play" || paused === b) return;
     paused = b; AE.setPaused(b); jumpRelease();
+    $("jump").classList.toggle("on", !b);
     show(b ? "pause" : null);
   }
   function openSub(id) { backTo = screen === "splash" ? "splash" : paused ? "pause" : "menu"; show(id); }
